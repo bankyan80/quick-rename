@@ -25,4 +25,4 @@ jobs:
 
       - name: Deploy migrations
         if: env.DATABASE_URL != ''
-        run: npx prisma migrate deploy
+        run: npx prisma migrate deploy --schema prisma/schema.prod.prisma

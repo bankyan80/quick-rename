@@ -70,19 +70,16 @@ Environments/deployments that need persistent storage or a managed DB should poi
 Vercel/edge hosting has read-only filesystems, so local SQLite (`file:./dev.db`) only works for local development. For production:
 
 1. Provision a hosted database (e.g. Neon, Vercel Postgres, or PlanetScale).
-2. In `prisma/schema.prisma`, change the datasource provider:
+2. Use the production schema variant `prisma/schema.prod.prisma` (same models, `provider = "postgresql"`). Keep it in sync with `prisma/schema.prisma` when models change.
+3. Set `DATABASE_URL` in the host (Vercel env vars + GitHub Actions secret).
+4. Create the first migration once the production DB is reachable:
 
-```prisma
-datasource db {
-  provider = "postgresql" // or "mysql"
-  url      = env("DATABASE_URL")
-}
+```bash
+npx prisma migrate dev --schema prisma/schema.prod.prisma --name init
+git add prisma/migrations
 ```
 
-3. Set `DATABASE_URL` in the host (Vercel env vars + GitHub Actions secret).
-4. Create the first migration locally with `npx prisma migrate dev`.
-
-Migrations are deployed automatically on push to `main` by `.github/workflows/db-migrate.yml` (uses the `DATABASE_URL` secret). You can also run them manually with `npm run db:migrate`.
+Migrations are deployed automatically on push to `main` by `.github/workflows/db-migrate.yml` (uses the `DATABASE_URL` GitHub secret against `prisma/schema.prod.prisma`). You can also run them manually with `npm run db:migrate`.
 
 ### Vercel
 
