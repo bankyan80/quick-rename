@@ -19,12 +19,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, account }) {
       if (user && account?.provider === "google") {
         token.googleId = account.providerAccountId;
+        const dbUser = await prisma.user.findUnique({
+          where: { googleId: account.providerAccountId },
+          select: { id: true },
+        });
+        token.uid = dbUser?.id;
+        return token;
+      }
+      if (!token.uid && token.googleId) {
+        const dbUser = await prisma.user.findUnique({
+          where: { googleId: token.googleId as string },
+          select: { id: true },
+        });
+        if (dbUser) token.uid = dbUser.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub as string;
+        session.user.id = (token.uid as string) || (token.sub as string);
         session.user.googleId = token.googleId as string;
       }
       return session;
