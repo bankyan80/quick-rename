@@ -3,6 +3,7 @@
 import { Logo } from "@/components/logo";
 import { useAppStore } from "@/store/use-store";
 import { Sun, Moon, Zap, Shield, Settings, ChevronDown } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export default function TopBar() {
   const theme = useAppStore((s) => s.theme);
@@ -67,13 +68,22 @@ export default function TopBar() {
           </button>
         )}
 
-        <button
-          className="toolbar-button"
-          onClick={toggleTheme}
-          aria-label="Ganti mode terang/gelap"
-        >
-          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+<button
+              className="toolbar-button"
+              onClick={toggleTheme}
+              aria-label="Ganti mode terang/gelap"
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
+        {!user && (
+          <button
+            className="rounded flex items-center gap-1.5 border border-primary/40 bg-primary-soft px-2.5 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/20"
+            onClick={() => signIn("google")}
+          >
+            Masuk dengan Google
+          </button>
+        )}
 
         <div className="relative group">
           {user ? (
