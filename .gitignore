@@ -36,6 +36,11 @@ yarn-error.log*
 # local sqlite database
 /prisma/dev.db*
 
+# local agent skills (personal, not part of the app)
+/.agents/skills/
+/.claude/skills/
+/skills-lock.json
+
 # vercel
 .vercel
 
