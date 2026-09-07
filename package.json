@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -11,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"
   },

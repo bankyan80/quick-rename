@@ -63,6 +63,35 @@ npx prisma db push   # sync SQLite schema
 
 Environments/deployments that need persistent storage or a managed DB should point `DATABASE_URL` at a hosted SQLite/Postgres-compatible Prisma datasource.
 
+## Deployment
+
+### Production database
+
+Vercel/edge hosting has read-only filesystems, so local SQLite (`file:./dev.db`) only works for local development. For production:
+
+1. Provision a hosted database (e.g. Neon, Vercel Postgres, or PlanetScale).
+2. In `prisma/schema.prisma`, change the datasource provider:
+
+```prisma
+datasource db {
+  provider = "postgresql" // or "mysql"
+  url      = env("DATABASE_URL")
+}
+```
+
+3. Set `DATABASE_URL` in the host (Vercel env vars + GitHub Actions secret).
+4. Create the first migration locally with `npx prisma migrate dev`.
+
+Migrations are deployed automatically on push to `main` by `.github/workflows/db-migrate.yml` (uses the `DATABASE_URL` secret). You can also run them manually with `npm run db:migrate`.
+
+### Vercel
+
+1. Push this repo to GitHub and import it into Vercel (framework auto-detected).
+2. Configure environment variables (see table above) — `NEXTAUTH_URL` must be the production domain.
+3. Add the Google OAuth authorized redirect URI: `https://<your-domain>/api/auth/callback/google`.
+4. `prisma generate` runs automatically on install (`postinstall`); migrations are applied by the GitHub Action (or run `npm run db:migrate` once after first deploy).
+5. The File System Access API requires HTTPS (Vercel provides it) and Chrome/Edge; other browsers automatically use the ZIP fallback.
+
 ## API Routes
 
 - `POST /api/rename/consume` — server-side quota enforcement (authenticated or anonymous)
