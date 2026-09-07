@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useSession, signIn } from "next-auth/react";
 import {
   FolderOpen,
   Files,
@@ -17,6 +18,7 @@ export default function LandingScreen() {
   const setFolderHandle = useAppStore((s) => s.setFolderHandle);
   const quota = useAppStore((s) => s.quota);
   const [isDragOver, setIsDragOver] = useState(false);
+  const { data: session } = useSession();
 
   const handleOpenFolder = async () => {
     if (typeof window === "undefined") return;
@@ -83,6 +85,25 @@ export default function LandingScreen() {
       onDrop={handleDrop}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.08),transparent_60%)]" />
+
+      <div className="absolute right-6 top-6 z-20">
+        {session?.user ? (
+          <span className="flex items-center gap-2 rounded-full border border-border bg-panel px-3.5 py-1.5 text-[12px] text-text-secondary">
+            <span className="h-5 w-5 rounded-full bg-primary text-white text-[10px] font-semibold flex items-center justify-center">
+              {session.user.name?.charAt(0).toUpperCase() || "U"}
+            </span>
+            {session.user.name}
+          </span>
+        ) : (
+          <button
+            className="flex items-center gap-2 rounded-full border border-primary/40 bg-primary-soft px-4 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/20"
+            onClick={() => signIn("google")}
+          >
+            <Sparkles size={14} />
+            Masuk dengan Google
+          </button>
+        )}
+      </div>
 
       <div
         className={`pointer-events-none absolute inset-4 rounded-2xl border-2 border-dashed transition-colors ${
