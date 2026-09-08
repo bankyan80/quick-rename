@@ -423,6 +423,13 @@
     "changesTitle": "7. Changes",
     "changesBody": "We may update these terms from time to time. Continued use of the service constitutes acceptance of the updated terms."
   },
+  "panelAdmin": {
+    "title": "Admin Panel",
+    "back": "Back to App",
+    "signInTitle": "Sign in to access the Admin Panel",
+    "signInBody": "This page is only for the account owner. Sign in with an account registered as admin.",
+    "signIn": "Sign in with Google"
+  },
   "date": {
     "today": "Today",
     "yesterday": "Yesterday",

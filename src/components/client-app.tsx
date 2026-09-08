@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useAppStore } from "@/store/use-store";
 import { useSession } from "next-auth/react";
 import TopBar from "@/components/top-bar";
@@ -25,6 +26,9 @@ export default function ClientApp({
   children: React.ReactNode;
 }) {
   useKeyboardShortcuts();
+
+  const pathname = usePathname();
+  const isAdminRoute = pathname === "/panel-admin";
 
   const files = useAppStore((s) => s.files);
   const folderHandle = useAppStore((s) => s.folderHandle);
@@ -124,22 +128,24 @@ export default function ClientApp({
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background text-text-primary">
       {children}
-      <div className="flex flex-1 flex-col overflow-hidden min-h-0">
-        {files.length === 0 && !folderHandle ? (
-          <LandingScreen />
-        ) : (
-          <>
-            <TopBar />
-            <MenuBar />
-            <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
-              <Sidebar />
-              <MainPanel />
-              <RenamePanel />
-            </div>
-            <BottomBar />
-          </>
-        )}
-      </div>
+      {!isAdminRoute && (
+        <div className="flex flex-1 flex-col overflow-hidden min-h-0">
+          {files.length === 0 && !folderHandle ? (
+            <LandingScreen />
+          ) : (
+            <>
+              <TopBar />
+              <MenuBar />
+              <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
+                <Sidebar />
+                <MainPanel />
+                <RenamePanel />
+              </div>
+              <BottomBar />
+            </>
+          )}
+        </div>
+      )}
 
       {showSettings && <SettingsModal />}
       {showHistory && <HistoryModal />}

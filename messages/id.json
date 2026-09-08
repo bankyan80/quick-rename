@@ -423,6 +423,13 @@
     "changesTitle": "7. Perubahan",
     "changesBody": "Kami dapat memperbarui ketentuan ini dari waktu ke waktu. Penggunaan layanan yang berkelanjutan dianggap sebagai penerimaan terhadap ketentuan yang diperbarui."
   },
+  "panelAdmin": {
+    "title": "Panel Admin",
+    "back": "Kembali ke Aplikasi",
+    "signInTitle": "Masuk untuk mengakses Panel Admin",
+    "signInBody": "Halaman ini hanya untuk pemilik akun. Masuk dengan akun yang terdaftar sebagai admin.",
+    "signIn": "Masuk dengan Google"
+  },
   "date": {
     "today": "Hari ini",
     "yesterday": "Kemarin",
