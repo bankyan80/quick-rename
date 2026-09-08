@@ -17,7 +17,7 @@ import ProfileModal from "@/components/profile-modal";
 import AdminModal from "@/components/admin-modal";
 import LandingScreen from "@/components/landing-screen";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { getAnonymousId } from "@/lib/anonymous-session";
+import { refreshUserQuota } from "@/lib/quota-client";
 
 export default function ClientApp({
   children,
@@ -98,40 +98,28 @@ export default function ClientApp({
         email: session.user.email || "",
         avatar: session.user.image || "",
       });
-
-      fetch("/api/quota")
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.error) {
-            setIsAdmin(data.isAdmin === true);
-            setQuota({
-              type: data.isAuthenticated ? "google" : "free",
-              total: data.type === "free" ? data.freeTotal : data.googleTotal + data.tokenBalance,
-              used: data.googleUsed,
-              remaining: data.totalRemaining,
-            });
-          }
-        })
-        .catch(() => {});
+      refreshUserQuota();
     } else {
       setUser(null);
       setIsAdmin(false);
-      const anonymousId = getAnonymousId();
-      fetch(`/api/quota${anonymousId ? `?anonymousId=${encodeURIComponent(anonymousId)}` : ""}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.error && !data.isAuthenticated) {
-            setQuota({
-              type: "free",
-              total: data.freeTotal,
-              used: data.freeUsed,
-              remaining: data.totalRemaining,
-            });
-          }
-        })
-        .catch(() => {});
+      refreshUserQuota();
     }
   }, [session, setUser, setQuota, setIsAdmin]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      refreshUserQuota();
+    };
+    const onVisibility = () => {
+      if (!document.hidden) refreshUserQuota();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background text-text-primary">

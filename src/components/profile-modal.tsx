@@ -5,6 +5,7 @@ import { useAppStore } from "@/store/use-store";
 import { useTranslations } from "next-intl";
 import { X, LogOut, Shield, User as UserIcon } from "lucide-react";
 import { signOut, signIn } from "next-auth/react";
+import { refreshUserQuota } from "@/lib/quota-client";
 
 interface ProfileOrder {
   id: string;
@@ -27,6 +28,7 @@ export default function ProfileModal() {
   const [orders, setOrders] = useState<ProfileOrder[]>([]);
 
   useEffect(() => {
+    refreshUserQuota();
     if (user) {
       fetch("/api/payment/orders")
         .then((res) => res.json())

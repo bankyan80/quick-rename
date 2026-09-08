@@ -5,6 +5,7 @@ import { useAppStore } from "@/store/use-store";
 import { useTranslations } from "next-intl";
 import { X, Zap, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
+import { refreshUserQuota } from "@/lib/quota-client";
 
 const TOKEN_PRICE = Number(process.env.NEXT_PUBLIC_TOKEN_PRICE || 50000);
 
@@ -25,6 +26,10 @@ export default function PaymentModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [proof, setProof] = useState("");
+
+  useEffect(() => {
+    refreshUserQuota();
+  }, []);
   const [orders, setOrders] = useState<PaymentOrderEntry[]>([]);
   const [danaNumber, setDanaNumber] = useState("");
   const [danaName, setDanaName] = useState("");
