@@ -10,6 +10,7 @@ export default function TopBar() {
   const setTheme = useAppStore((s) => s.setTheme);
   const quota = useAppStore((s) => s.quota);
   const user = useAppStore((s) => s.user);
+  const isAdmin = useAppStore((s) => s.isAdmin);
   const setShowSettings = useAppStore((s) => s.setShowSettings);
   const setShowPayment = useAppStore((s) => s.setShowPayment);
   const setShowProfile = useAppStore((s) => s.setShowProfile);
@@ -83,6 +84,15 @@ export default function TopBar() {
           >
             Masuk dengan Google
           </button>
+        )}
+
+        {user && isAdmin && (
+          <span
+            className="badge border border-primary/30 bg-primary-soft text-primary"
+            title="Anda adalah admin"
+          >
+            <span className="font-semibold">Admin</span>
+          </span>
         )}
 
         <div className="relative group">

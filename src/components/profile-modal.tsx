@@ -21,19 +21,10 @@ export default function ProfileModal() {
   const setQuota = useAppStore((s) => s.setQuota);
   const setShowPayment = useAppStore((s) => s.setShowPayment);
   const setShowAdmin = useAppStore((s) => s.setShowAdmin);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useAppStore((s) => s.isAdmin);
   const [orders, setOrders] = useState<ProfileOrder[]>([]);
 
   useEffect(() => {
-    fetch("/api/quota")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.error) {
-          setIsAdmin(data.isAdmin || false);
-        }
-      })
-      .catch(() => {});
-
     if (user) {
       fetch("/api/payment/orders")
         .then((res) => res.json())
@@ -89,7 +80,14 @@ export default function ProfileModal() {
                 </span>
               )}
               <div>
-                <p className="text-[14px] font-medium">{user.name}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[14px] font-medium">{user.name}</p>
+                  {isAdmin && (
+                    <span className="rounded bg-primary-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                      Admin
+                    </span>
+                  )}
+                </div>
                 <p className="text-[12px] text-text-muted">{user.email}</p>
               </div>
             </div>

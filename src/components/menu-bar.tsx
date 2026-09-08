@@ -39,6 +39,7 @@ export default function MenuBar() {
   const setShowPayment = useAppStore((s) => s.setShowPayment);
   const setShowAdmin = useAppStore((s) => s.setShowAdmin);
   const setShowProfile = useAppStore((s) => s.setShowProfile);
+  const isAdmin = useAppStore((s) => s.isAdmin);
   const setRule = useAppStore((s) => s.setRule);
   const toggleRenamePanel = useAppStore((s) => s.toggleRenamePanel);
   const lastOperation = useAppStore((s) => s.lastOperation);
@@ -241,11 +242,15 @@ export default function MenuBar() {
         action: () => setShowSettings(true),
       },
       { label: "", icon: <></>, action: () => {}, separator: true },
-      {
-        label: "Panel Admin",
-        icon: <Shield size={14} />,
-        action: () => setShowAdmin(true),
-      },
+      ...(isAdmin
+        ? [
+            {
+              label: "Panel Admin",
+              icon: <Shield size={14} />,
+              action: () => setShowAdmin(true),
+            },
+          ]
+        : []),
     ],
     view: [
       {

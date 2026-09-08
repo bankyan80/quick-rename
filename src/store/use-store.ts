@@ -30,6 +30,7 @@ interface AppState {
   renamePanelOpen: boolean;
   quota: QuotaInfo;
   user: { name: string; email: string; avatar: string } | null;
+  isAdmin: boolean;
 
   setFiles: (files: FileEntry[]) => void;
   addFiles: (files: FileEntry[]) => void;
@@ -55,6 +56,7 @@ interface AppState {
   toggleRenamePanel: () => void;
   setQuota: (quota: QuotaInfo) => void;
   setUser: (user: { name: string; email: string; avatar: string } | null) => void;
+  setIsAdmin: (isAdmin: boolean) => void;
   setShowSettings: (show: boolean) => void;
   setShowHistory: (show: boolean) => void;
   setShowHelp: (show: boolean) => void;
@@ -108,6 +110,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   renamePanelOpen: true,
   quota: { type: "free", total: 5, used: 0, remaining: 5 },
   user: null,
+  isAdmin: false,
 
   setFiles: (files) =>
     set({
@@ -244,6 +247,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setQuota: (quota) => set({ quota }),
 
   setUser: (user) => set({ user }),
+  setIsAdmin: (isAdmin) => set({ isAdmin }),
 
   setShowSettings: (show) => set({ showSettings: show }),
   setShowHistory: (show) => set({ showHistory: show }),

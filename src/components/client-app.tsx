@@ -32,6 +32,7 @@ export default function ClientApp({
   const setTheme = useAppStore((s) => s.setTheme);
   const setUser = useAppStore((s) => s.setUser);
   const setQuota = useAppStore((s) => s.setQuota);
+  const setIsAdmin = useAppStore((s) => s.setIsAdmin);
   const setDensity = useAppStore((s) => s.setDensity);
   const setConfirmBeforeRename = useAppStore((s) => s.setConfirmBeforeRename);
   const setPreserveExtensions = useAppStore((s) => s.setPreserveExtensions);
@@ -102,6 +103,7 @@ export default function ClientApp({
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
+            setIsAdmin(data.isAdmin === true);
             setQuota({
               type: data.isAuthenticated ? "google" : "free",
               total: data.type === "free" ? data.freeTotal : data.googleTotal + data.tokenBalance,
@@ -113,6 +115,7 @@ export default function ClientApp({
         .catch(() => {});
     } else {
       setUser(null);
+      setIsAdmin(false);
       const anonymousId = getAnonymousId();
       fetch(`/api/quota${anonymousId ? `?anonymousId=${encodeURIComponent(anonymousId)}` : ""}`)
         .then((res) => res.json())
@@ -128,7 +131,7 @@ export default function ClientApp({
         })
         .catch(() => {});
     }
-  }, [session, setUser, setQuota]);
+  }, [session, setUser, setQuota, setIsAdmin]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background text-text-primary">
