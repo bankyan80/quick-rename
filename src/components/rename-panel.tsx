@@ -861,13 +861,13 @@ export default function RenamePanel() {
               {t("quotaExhausted")}
             </div>
             <button
-              className="btn btn-secondary w-full"
+              className="btn btn-primary w-full"
               onClick={() => signIn("google")}
             >
               {t("signInGoogle")}
             </button>
             <button
-              className="btn btn-primary w-full"
+              className="btn btn-secondary w-full"
               onClick={() => setShowPayment(true)}
             >
               {t("buyToken")}

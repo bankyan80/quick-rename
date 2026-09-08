@@ -17,7 +17,6 @@ interface PaymentOrderEntry {
 export default function PaymentModal() {
   const t = useTranslations("paymentModal");
   const setShowPayment = useAppStore((s) => s.setShowPayment);
-  const user = useAppStore((s) => s.user);
   const { data: session } = useSession();
 
   const [step, setStep] = useState<"select" | "instructions" | "done">("select");
@@ -154,9 +153,9 @@ export default function PaymentModal() {
               </div>
             </div>
 
-            {user ? (
+            {session?.user ? (
               <p className="mb-3 text-center text-[12px] text-text-secondary">
-                {t("buyAs", { email: user.email })}
+                {t("buyAs", { email: session.user.email || "" })}
               </p>
             ) : (
               <p className="mb-3 text-center text-[12px] text-warning">
@@ -191,7 +190,7 @@ export default function PaymentModal() {
               </button>
             </div>
 
-            {!user && (
+            {!session?.user && (
               <button
                 className="btn btn-ghost mt-2 w-full text-[12px] text-primary"
                 onClick={() => signIn("google")}
