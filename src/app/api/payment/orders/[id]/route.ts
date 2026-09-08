@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/quota";
 import { prisma } from "@/lib/prisma";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 export async function PATCH(
   request: Request,
@@ -52,6 +53,21 @@ export async function PATCH(
 
       return { proof, order: updatedOrder };
     });
+
+    await sendTelegramNotification(
+      [
+        "<b>\u{1F4CB} Pesanan Token Baru \u2014 Menunggu Verifikasi</b>",
+        "",
+        `No. Pesanan: <code>${updated.order.orderNumber}</code>`,
+        `Pelanggan: ${session.user.name || "-"} (${session.user.email || "-"})`,
+        `Metode: ${updated.order.paymentMethod}`,
+        `Jumlah: Rp${updated.order.amount.toLocaleString("id-ID")}`,
+        `Token: ${updated.order.tokenQuantity} (${updated.order.fileQuantity} file)`,
+        "",
+        `Referensi: ${updated.proof.reference || "-"}`,
+        `Catatan: ${updated.proof.notes || "-"}`,
+      ].join("\n")
+    );
 
     return NextResponse.json({ success: true, ...updated });
   } catch (error) {
