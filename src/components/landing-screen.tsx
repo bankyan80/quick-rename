@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import { useSession, signIn } from "next-auth/react";
 import {
   FolderOpen,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function LandingScreen() {
+  const t = useTranslations("landing");
   const setFiles = useAppStore((s) => s.setFiles);
   const setFolderHandle = useAppStore((s) => s.setFolderHandle);
   const quota = useAppStore((s) => s.quota);
@@ -23,9 +25,7 @@ export default function LandingScreen() {
   const handleOpenFolder = async () => {
     if (typeof window === "undefined") return;
     if (!("showDirectoryPicker" in window)) {
-      alert(
-        "Peramban Anda tidak mendukung API File System Access. Gunakan 'Pilih File' sebagai gantinya."
-      );
+      alert(t("apiUnsupported"));
       return;
     }
 
@@ -36,7 +36,7 @@ export default function LandingScreen() {
       setFolderHandle(handle, handle.name);
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
-        alert("Tidak dapat membuka folder. Periksa izin akses Anda.");
+        alert(t("folderOpenFailed"));
       }
     }
   };
@@ -70,7 +70,7 @@ export default function LandingScreen() {
         setFiles(dropped);
       }
     } catch {
-      alert("Tidak dapat membaca file yang diturunkan.");
+      alert(t("dropFailed"));
     }
   };
 
@@ -100,7 +100,7 @@ export default function LandingScreen() {
             onClick={() => signIn("google")}
           >
             <Sparkles size={14} />
-            Masuk dengan Google
+            {t("signIn")}
           </button>
         )}
       </div>
@@ -115,7 +115,7 @@ export default function LandingScreen() {
         {isDragOver && (
           <div className="mb-4 flex items-center gap-2 rounded-full bg-primary-soft px-4 py-1.5 text-[13px] font-medium text-primary">
             <UploadCloud size={16} />
-            Lepaskan file untuk memuatnya
+            {t("dropHint")}
           </div>
         )}
         <div className="mb-5 flex h-16 w-16 items-center justify-center">
@@ -129,15 +129,14 @@ export default function LandingScreen() {
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight">
-          Ubah nama ratusan file{" "}
+          {t("heroPrefix")}{" "}
           <span className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            dalam hitungan detik
+            {t("heroHighlight")}
           </span>
         </h1>
 
         <p className="mt-3 max-w-md text-[14px] leading-relaxed text-text-secondary">
-          Utilitas desktop profesional untuk penggantian nama file massal —
-          bekerja langsung di peramban Anda.
+          {t("subtitle")}
         </p>
 
         <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
@@ -146,48 +145,48 @@ export default function LandingScreen() {
             onClick={handleOpenFolder}
           >
             <FolderOpen size={17} />
-            Buka Folder
+            {t("openFolder")}
           </button>
           <button
             className="btn btn-secondary btn-lg !h-12 min-w-[200px] text-[15px]"
             onClick={handleSelectFiles}
           >
             <Files size={17} />
-            Pilih File
+            {t("selectFiles")}
           </button>
         </div>
 
         <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-panel px-4 py-1.5 text-[12px] text-text-secondary">
           <Shield size={14} className="text-success" />
-          File Anda tetap berada di perangkat Anda. Tanpa unggahan.
+          {t("privacyNotice")}
         </div>
 
         <div className="mt-6 grid w-full grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div className="card p-4 text-left">
             <div className="flex items-center gap-2 mb-1">
               <Zap size={14} className="text-primary" />
-              <span className="text-[12px] font-semibold">Gratis</span>
+              <span className="text-[12px] font-semibold">{t("planFree")}</span>
             </div>
             <p className="text-[12px] text-text-muted leading-snug">
-              Ubah nama hingga {quota.total || 5} file tanpa perlu mendaftar.
+              {t("planFreeDesc", { count: quota.total || 5 })}
             </p>
           </div>
           <div className="card p-4 text-left">
             <div className="flex items-center gap-2 mb-1">
               <Sparkles size={14} className="text-primary" />
-              <span className="text-[12px] font-semibold">Google</span>
+              <span className="text-[12px] font-semibold">{t("planGoogle")}</span>
             </div>
             <p className="text-[12px] text-text-muted leading-snug">
-              10 file dengan akun Google gratis.
+              {t("planGoogleDesc")}
             </p>
           </div>
           <div className="card p-4 text-left">
             <div className="flex items-center gap-2 mb-1">
               <ChevronRight size={14} className="text-primary" />
-              <span className="text-[12px] font-semibold">Token</span>
+              <span className="text-[12px] font-semibold">{t("planToken")}</span>
             </div>
             <p className="text-[12px] text-text-muted leading-snug">
-              100 file per token — bayar hanya untuk yang Anda ubah namanya.
+              {t("planTokenDesc")}
             </p>
           </div>
         </div>

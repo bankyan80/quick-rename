@@ -11,6 +11,7 @@ import {
   Square,
   Wand2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/store/use-store";
 import type { RenameMode } from "@/types";
 
@@ -28,6 +29,7 @@ export default function ContextMenu({
   onClose,
   onRenameRequest,
 }: ContextMenuProps) {
+  const t = useTranslations("contextMenu");
   const ref = useRef<HTMLDivElement>(null);
   const hasSelection = useAppStore((s) => s.selectedCount > 0);
 
@@ -54,12 +56,12 @@ export default function ContextMenu({
   };
 
   const items = [
-    { label: "Tambah Awalan", icon: Type, action: () => onRenameRequest("prefix"), disabled: !hasSelection },
-    { label: "Tambah Akhiran", icon: Type, action: () => onRenameRequest("suffix"), disabled: !hasSelection },
-    { label: "Ubah dengan Pola", icon: Braces, action: () => onRenameRequest("pattern"), disabled: !hasSelection },
-    { label: "Temukan & Ganti", icon: Replace, action: () => onRenameRequest("find-replace"), disabled: !hasSelection },
-    { label: "Penomoran", icon: Hash, action: () => onRenameRequest("numbering"), disabled: !hasSelection },
-    { label: "Hapus Teks", icon: Eraser, action: () => onRenameRequest("remove"), disabled: !hasSelection },
+    { label: t("addPrefix"), icon: Type, action: () => onRenameRequest("prefix"), disabled: !hasSelection },
+    { label: t("addSuffix"), icon: Type, action: () => onRenameRequest("suffix"), disabled: !hasSelection },
+    { label: t("applyPattern"), icon: Braces, action: () => onRenameRequest("pattern"), disabled: !hasSelection },
+    { label: t("findReplace"), icon: Replace, action: () => onRenameRequest("find-replace"), disabled: !hasSelection },
+    { label: t("numbering"), icon: Hash, action: () => onRenameRequest("numbering"), disabled: !hasSelection },
+    { label: t("removeText"), icon: Eraser, action: () => onRenameRequest("remove"), disabled: !hasSelection },
   ];
 
   return (
@@ -94,7 +96,7 @@ export default function ContextMenu({
         }}
       >
         {hasSelection ? <Square size={14} /> : <CheckSquare size={14} />}
-        {hasSelection ? "Batalkan Semua Pilihan" : "Pilih Semua"}
+        {hasSelection ? t("deselectAll") : t("selectAll")}
       </button>
       <button
         className="menu-item"
@@ -105,7 +107,7 @@ export default function ContextMenu({
         }}
       >
         <Wand2 size={14} />
-        Ubah dengan Pola
+        {t("applyPattern")}
       </button>
     </div>
   );

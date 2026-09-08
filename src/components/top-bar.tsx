@@ -2,10 +2,12 @@
 
 import { Logo } from "@/components/logo";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import { Sun, Moon, Zap, Shield, Settings, ChevronDown } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function TopBar() {
+  const t = useTranslations("topBar");
   const theme = useAppStore((s) => s.theme);
   const setTheme = useAppStore((s) => s.setTheme);
   const quota = useAppStore((s) => s.quota);
@@ -21,12 +23,12 @@ export default function TopBar() {
 
   const quotaLabel =
     quota.type === "free"
-      ? `GRATIS · sisa ${quota.remaining} file`
+      ? t("quotaFree", { count: quota.remaining })
       : quota.type === "google" && quota.remaining > quota.total
-      ? `TOKEN · sisa ${quota.remaining} file`
+      ? t("quotaToken", { count: quota.remaining })
       : user
-      ? `GOOGLE · sisa ${quota.remaining} file`
-      : `GRATIS · sisa ${quota.remaining} file`;
+      ? t("quotaGoogle", { count: quota.remaining })
+      : t("quotaFree", { count: quota.remaining });
 
   const showTokenBadge = user && quota.total > 10;
 
@@ -39,7 +41,7 @@ export default function TopBar() {
             Quick Rename
           </span>
           <span className="text-[10px] text-text-muted">
-            Ubah nama ratusan file dalam hitungan detik
+            {t("tagline")}
           </span>
         </div>
       </div>
@@ -49,12 +51,12 @@ export default function TopBar() {
       <div className="flex items-center gap-2">
         <span className="hidden md:flex items-center gap-1.5 text-[11px] text-text-muted">
           <Shield size={13} className="text-success" />
-          File tetap di perangkat Anda
+          {t("privacy")}
         </span>
 
         <span
           className="badge cursor-default bg-primary-soft text-primary"
-          title="Kuota file saat ini"
+          title={t("quotaTooltip")}
         >
           <Zap size={12} />
           {quotaLabel}
@@ -65,14 +67,14 @@ export default function TopBar() {
             className="badge border border-border bg-card text-text-secondary hover:bg-card-hover transition-colors cursor-pointer"
             onClick={() => setShowPayment(true)}
           >
-            Beli Token
+            {t("buyToken")}
           </button>
         )}
 
 <button
               className="toolbar-button"
               onClick={toggleTheme}
-              aria-label="Ganti mode terang/gelap"
+              aria-label={t("themeToggle")}
             >
               {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
@@ -82,16 +84,16 @@ export default function TopBar() {
             className="rounded flex items-center gap-1.5 border border-primary/40 bg-primary-soft px-2.5 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/20"
             onClick={() => signIn("google")}
           >
-            Masuk dengan Google
+            {t("signIn")}
           </button>
         )}
 
         {user && isAdmin && (
           <span
             className="badge border border-primary/30 bg-primary-soft text-primary"
-            title="Anda adalah admin"
+            title={t("adminTooltip")}
           >
-            <span className="font-semibold">Admin</span>
+            <span className="font-semibold">{t("adminBadge")}</span>
           </span>
         )}
 
@@ -100,7 +102,7 @@ export default function TopBar() {
             <button
               className="toolbar-button !p-1"
               onClick={() => setShowProfile(true)}
-              aria-label="Menu akun"
+              aria-label={t("accountMenu")}
             >
               {user.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element

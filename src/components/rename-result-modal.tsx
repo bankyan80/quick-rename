@@ -2,6 +2,7 @@
 
 import { CheckCircle2, XCircle, AlertTriangle, X, History } from "lucide-react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 
 interface ResultDetail {
   originalName: string;
@@ -26,6 +27,7 @@ export default function RenameResultModal({
   details,
   onClose,
 }: Props) {
+  const t = useTranslations("renameResult");
   const setShowHistory = useAppStore((s) => s.setShowHistory);
 
   return (
@@ -34,14 +36,14 @@ export default function RenameResultModal({
         className="modal w-full max-w-lg p-5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Hasil penggantian nama"
+        aria-label={t("title")}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[16px] font-semibold">Hasil Penggantian Nama</h2>
+          <h2 className="text-[16px] font-semibold">{t("title")}</h2>
           <button
             className="toolbar-button !p-1"
             onClick={onClose}
-            aria-label="Tutup hasil"
+            aria-label={t("closeAria")}
           >
             <X size={16} />
           </button>
@@ -53,17 +55,17 @@ export default function RenameResultModal({
             <div className="text-[20px] font-semibold text-success">
               {successful}
             </div>
-            <div className="text-[11px] text-text-secondary">Berhasil</div>
+            <div className="text-[11px] text-text-secondary">{t("success")}</div>
           </div>
           <div className="rounded border border-danger-soft bg-danger-soft p-3 text-center">
             <XCircle size={18} className="mx-auto mb-1 text-danger" />
             <div className="text-[20px] font-semibold text-danger">{failed}</div>
-            <div className="text-[11px] text-text-secondary">Gagal</div>
+            <div className="text-[11px] text-text-secondary">{t("failed")}</div>
           </div>
           <div className="rounded border border-warning-soft bg-warning-soft p-3 text-center">
             <AlertTriangle size={18} className="mx-auto mb-1 text-warning" />
             <div className="text-[20px] font-semibold text-warning">{skipped}</div>
-            <div className="text-[11px] text-text-secondary">Dilewati</div>
+            <div className="text-[11px] text-text-secondary">{t("skipped")}</div>
           </div>
         </div>
 
@@ -72,9 +74,9 @@ export default function RenameResultModal({
             <table className="w-full text-[12px]">
               <thead className="sticky top-0 bg-card">
                 <tr className="text-left text-text-muted">
-                  <th className="px-2.5 py-1.5 font-medium">Nama Asli</th>
-                  <th className="px-2.5 py-1.5 font-medium">Nama Baru</th>
-                  <th className="px-2.5 py-1.5 font-medium">Status</th>
+                  <th className="px-2.5 py-1.5 font-medium">{t("original")}</th>
+                  <th className="px-2.5 py-1.5 font-medium">{t("new")}</th>
+                  <th className="px-2.5 py-1.5 font-medium">{t("status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -88,12 +90,12 @@ export default function RenameResultModal({
                     </td>
                     <td className="px-2.5 py-1.5">
                       {d.success ? (
-                        <span className="text-success">Berhasil</span>
+                        <span className="text-success">{t("success")}</span>
                       ) : d.skipped ? (
-                        <span className="text-warning">Dilewati</span>
+                        <span className="text-warning">{t("skipped")}</span>
                       ) : (
                         <span className="text-danger" title={d.error}>
-                          Gagal
+                          {t("failed")}
                         </span>
                       )}
                     </td>
@@ -113,13 +115,13 @@ export default function RenameResultModal({
             }}
           >
             <History size={15} />
-            Lihat Riwayat
+            {t("viewHistory")}
           </button>
           <button
             className="btn btn-primary btn-lg flex-1"
             onClick={onClose}
           >
-            Selesai
+            {t("done")}
           </button>
         </div>
       </div>

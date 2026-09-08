@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppStore } from "@/store/use-store";
+import { useLocale, useTranslations } from "next-intl";
 import {
   X,
   Monitor,
@@ -9,9 +10,17 @@ import {
   FileText,
   Rows3,
   CheckSquare,
+  Languages,
 } from "lucide-react";
 
+function switchLocale(next: string) {
+  document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000; samesite=lax`;
+  window.location.reload();
+}
+
 export default function SettingsModal() {
+  const t = useTranslations("settingsModal");
+  const locale = useLocale();
   const setShowSettings = useAppStore((s) => s.setShowSettings);
   const theme = useAppStore((s) => s.theme);
   const setTheme = useAppStore((s) => s.setTheme);
@@ -30,14 +39,14 @@ export default function SettingsModal() {
         className="modal w-full max-w-md p-5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Pengaturan"
+        aria-label={t("title")}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[16px] font-semibold">Pengaturan</h2>
+          <h2 className="text-[16px] font-semibold">{t("title")}</h2>
           <button
             className="toolbar-button !p-1"
             onClick={() => setShowSettings(false)}
-            aria-label="Tutup pengaturan"
+            aria-label={t("closeAria")}
           >
             <X size={16} />
           </button>
@@ -47,14 +56,14 @@ export default function SettingsModal() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Monitor size={14} className="text-primary" />
-              <label className="label !mb-0">Tampilan</label>
+              <label className="label !mb-0">{t("appearance")}</label>
             </div>
             <div className="flex gap-2">
               {(
                 [
-                  ["dark", "Gelap"],
-                  ["light", "Terang"],
-                  ["system", "Sistem"],
+                  ["dark", t("themeDark")],
+                  ["light", t("themeLight")],
+                  ["system", t("themeSystem")],
                 ] as const
               ).map(([value, label]) => (
                 <button
@@ -71,13 +80,13 @@ export default function SettingsModal() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Rows3 size={14} className="text-primary" />
-              <label className="label !mb-0">Kerapatan Daftar File</label>
+              <label className="label !mb-0">{t("density")}</label>
             </div>
             <div className="flex gap-2">
               {(
                 [
-                  ["comfortable", "Nyaman"],
-                  ["compact", "Padat"],
+                  ["comfortable", t("densityComfortable")],
+                  ["compact", t("densityCompact")],
                 ] as const
               ).map(([value, label]) => (
                 <button
@@ -93,8 +102,31 @@ export default function SettingsModal() {
 
           <div>
             <div className="flex items-center gap-2 mb-2">
+              <Languages size={14} className="text-primary" />
+              <label className="label !mb-0">{t("language")}</label>
+            </div>
+            <div className="flex gap-2">
+              {(
+                [
+                  ["id", t("languageId")],
+                  ["en", t("languageEn")],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  className={`btn flex-1 ${locale === value ? "btn-primary" : "btn-secondary"}`}
+                  onClick={() => switchLocale(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
               <Info size={14} className="text-primary" />
-              <label className="label !mb-0">Penanganan Konflik</label>
+              <label className="label !mb-0">{t("conflict")}</label>
             </div>
             <select
               className="select"
@@ -103,16 +135,16 @@ export default function SettingsModal() {
                 setConflictResolution(e.target.value as typeof conflictResolution)
               }
             >
-              <option value="auto-resolve">Selesaikan otomatis (mis. file (1).png)</option>
-              <option value="skip">Lewati konflik</option>
-              <option value="cancel">Batalkan seluruh operasi saat konflik</option>
+              <option value="auto-resolve">{t("conflictAuto")}</option>
+              <option value="skip">{t("conflictSkip")}</option>
+              <option value="cancel">{t("conflictCancel")}</option>
             </select>
           </div>
 
           <div>
             <div className="flex items-center gap-2 mb-2">
               <FileText size={14} className="text-primary" />
-              <label className="label !mb-0">Perilaku File</label>
+              <label className="label !mb-0">{t("fileBehavior")}</label>
             </div>
             <label className="flex items-center gap-2 text-[12px] text-text-secondary cursor-pointer py-1">
               <input
@@ -121,20 +153,22 @@ export default function SettingsModal() {
                 onChange={(e) => setPreserveExtensions(e.target.checked)}
                 className="h-4 w-4"
               />
-              Pertahankan ekstensi file secara otomatis
+              {t("preserveExtensions")}
             </label>
             <p className="text-[12px] text-text-muted">
-              Ekstensi selalu dipertahankan secara default. Untuk mengubah
-              ekstensi, gunakan mode Pola dengan variabel{" "}
-              <code className="rounded bg-card px-1">{`{ext}`}</code> atau
-              nonaktifkan opsi ini.
+              {t.rich("preserveExtensionsHint", {
+                ext: "{ext}",
+                code: (chunks) => (
+                  <code className="rounded bg-card px-1">{chunks}</code>
+                ),
+              })}
             </p>
           </div>
 
           <div>
             <div className="flex items-center gap-2 mb-2">
               <CheckSquare size={14} className="text-primary" />
-              <label className="label !mb-0">Konfirmasi</label>
+              <label className="label !mb-0">{t("confirmation")}</label>
             </div>
             <label className="flex items-center gap-2 text-[12px] text-text-secondary cursor-pointer py-1">
               <input
@@ -143,7 +177,7 @@ export default function SettingsModal() {
                 onChange={(e) => setConfirmBeforeRename(e.target.checked)}
                 className="h-4 w-4"
               />
-              Minta konfirmasi sebelum mengubah nama
+              {t("confirmPrompt")}
             </label>
           </div>
 
@@ -151,12 +185,11 @@ export default function SettingsModal() {
             <div className="flex items-center gap-2 mb-1">
               <ShieldCheck size={14} className="text-success" />
               <span className="text-[12px] font-medium text-success">
-                Privasi
+                {t("privacy")}
               </span>
             </div>
             <p className="text-[12px] text-text-secondary leading-snug">
-              File Anda diproses secara lokal di peramban. Quick Rename tidak
-              pernah mengunggah atau menyimpan isi file Anda.
+              {t("privacyDesc")}
             </p>
           </div>
         </div>

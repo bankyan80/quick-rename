@@ -1,9 +1,11 @@
 "use client";
 
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import { X, History, Undo2, ArrowRight } from "lucide-react";
 
 export default function HistoryModal() {
+  const t = useTranslations("historyModal");
   const setShowHistory = useAppStore((s) => s.setShowHistory);
   const history = useAppStore((s) => s.history);
   const refreshFileHandles = useAppStore((s) => s.refreshFileHandles);
@@ -22,21 +24,21 @@ export default function HistoryModal() {
       }
       setRenaming(false);
       await refreshFileHandles();
-      alert(`${undoResults.length} penggantian nama dibatalkan.`);
+      alert(t("undoneAlert", { count: undoResults.length }));
     })();
   };
 
   const formatSummary = (op: (typeof history)[0]) => {
     const byMode: Record<string, string> = {
-      prefix: "Awalan",
-      suffix: "Akhiran",
-      "find-replace": "Temukan & Ganti",
-      numbering: "Penomoran",
-      case: "Konversi Huruf",
-      remove: "Hapus Teks",
-      pattern: `Pola: ${op.rule.pattern}`,
+      prefix: t("modePrefix"),
+      suffix: t("modeSuffix"),
+      "find-replace": t("modeFindReplace"),
+      numbering: t("modeNumbering"),
+      case: t("modeCase"),
+      remove: t("modeRemove"),
+      pattern: t("modePattern", { pattern: op.rule.pattern ?? "" }),
     };
-    return byMode[op.rule.mode] || "Ubah Nama";
+    return byMode[op.rule.mode] || t("modeDefault");
   };
 
   return (
@@ -45,17 +47,17 @@ export default function HistoryModal() {
         className="modal w-full max-w-lg p-5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Riwayat penggantian nama"
+        aria-label={t("title")}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[16px] font-semibold flex items-center gap-2">
             <History size={16} className="text-primary" />
-            Riwayat Penggantian Nama
+            {t("title")}
           </h2>
           <button
             className="toolbar-button !p-1"
             onClick={() => setShowHistory(false)}
-            aria-label="Tutup riwayat"
+            aria-label={t("closeAria")}
           >
             <X size={16} />
           </button>
@@ -63,7 +65,7 @@ export default function HistoryModal() {
 
         {history.length === 0 ? (
           <p className="py-8 text-center text-text-muted text-[13px]">
-            Belum ada operasi penggantian nama pada sesi ini.
+            {t("empty")}
           </p>
         ) : (
           <div className="space-y-2 max-h-[60vh] overflow-y-auto">
@@ -77,8 +79,12 @@ export default function HistoryModal() {
                     {formatSummary(op)}
                   </p>
                   <p className="text-[11px] text-text-muted mt-0.5">
-                    {op.successfulCount} diubah · {op.failedCount} gagal ·{" "}
-                    {op.skippedCount} dilewati ·{" "}
+                    {t("summary", {
+                      successful: op.successfulCount,
+                      failed: op.failedCount,
+                      skipped: op.skippedCount,
+                    })}
+                    {" · "}
                     {op.timestamp.toLocaleString()}
                   </p>
                 </div>
@@ -87,10 +93,10 @@ export default function HistoryModal() {
                     <button
                       className="toolbar-button text-[12px]"
                       onClick={() => undoOperation(op)}
-                      title="Batalkan operasi ini"
+                      title={t("undoTitle")}
                     >
                       <Undo2 size={13} />
-                      Batalkan
+                      {t("undo")}
                     </button>
                   )}
                   <button
@@ -107,10 +113,10 @@ export default function HistoryModal() {
                           .join("\n")
                       )
                     }
-                    title="Lihat hasil detail"
+                    title={t("detailsTitle")}
                   >
                     <ArrowRight size={13} />
-                    Detail
+                    {t("details")}
                   </button>
                 </div>
               </div>

@@ -25,6 +25,7 @@ import {
   autoResolveConflicts,
 } from "@/lib/rename-engine";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { downloadRenamedZip } from "@/lib/file-system";
 import { getAnonymousId } from "@/lib/anonymous-session";
 import RenameResultModal from "@/components/rename-result-modal";
@@ -38,6 +39,7 @@ interface ResultState {
 }
 
 export default function RenamePanel() {
+  const t = useTranslations("renamePanel");
   const files = useAppStore((s) => s.files);
   const rule = useAppStore((s) => s.rule);
   const setRule = useAppStore((s) => s.setRule);
@@ -147,7 +149,7 @@ export default function RenamePanel() {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => null);
-      throw new Error(data?.error || "Gagal memperbarui kuota");
+      throw new Error(data?.error || t("quotaUpdateError"));
     }
     await refetchQuota();
   };
@@ -169,7 +171,7 @@ export default function RenamePanel() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Gagal memperbarui kuota. Saldo Anda tetap tidak berubah."
+            : t("quotaUpdateError")
         );
         setRenaming(false);
         return;
@@ -219,9 +221,7 @@ export default function RenamePanel() {
         ready.map((p) => ({ file: p.file, newName: p.newName }))
       );
     } catch (error) {
-      setErrorMessage(
-        "Gagal membuat arsip ZIP. Coba lagi atau gunakan direktori yang mendukung penggantian nama langsung."
-      );
+      setErrorMessage(t("zipFailed"));
       console.error("ZIP fallback failed:", error);
       setRenaming(false);
       return;
@@ -240,7 +240,7 @@ export default function RenamePanel() {
 
   const runDirectRename = async () => {
     if (!hasFolderPermission) return;
-    if (confirmBeforeRename && !window.confirm(`Ubah nama ${readyCount} file terpilih?`)) {
+    if (confirmBeforeRename && !window.confirm(t("confirmRename", { count: readyCount }))) {
       return;
     }
 
@@ -276,7 +276,7 @@ export default function RenamePanel() {
           originalName: p.original,
           newName: p.newName,
           success: false,
-          error: "Tidak dapat diubah",
+          error: t("cannotRename"),
         });
         setRenameProgress({
           total: preview.length,
@@ -295,8 +295,8 @@ export default function RenamePanel() {
           success: false,
           error:
             p.status === "duplicate"
-              ? "Nama target duplikat"
-              : "Nama file tidak valid",
+              ? t("duplicateTarget")
+              : t("invalidTarget"),
         });
         setRenameProgress({
           total: preview.length,
@@ -313,7 +313,7 @@ export default function RenamePanel() {
           originalName: p.original,
           newName: p.newName,
           success: false,
-          error: "Referensi file tidak tersedia",
+          error: t("noFileHandle"),
         });
         setRenameProgress({
           total: preview.length,
@@ -339,7 +339,7 @@ export default function RenamePanel() {
           originalName: p.original,
           newName: p.newName,
           success: false,
-          error: "Penggantian nama gagal. Pastikan file tidak terbuka atau terkunci.",
+          error: t("renameFailed"),
         });
       }
 
@@ -362,13 +362,15 @@ export default function RenamePanel() {
           operationId,
           `${rule.mode} - ${successful} file`
         );
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "Gagal memperbarui kuota. Saldo Anda tetap tidak berubah."
-        );
-      }
+} catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : t("consumeFailed")
+      );
+      await refetchQuota();
+      return false;
+    }
     }
 
     addHistoryEntry({
@@ -404,21 +406,21 @@ export default function RenamePanel() {
 
     if (invalidCount > 0) {
       setErrorMessage(
-        `${invalidCount} file memiliki nama yang tidak valid. Perbaiki sebelum melanjutkan.`
+        t("invalidNamesError", { count: invalidCount })
       );
       return;
     }
 
     if (duplicateCount > 0 && conflictResolution !== "auto-resolve") {
       setErrorMessage(
-        `Terjadi ${duplicateCount} nama target yang sama. Selesaikan konflik terlebih dahulu.`
+        t("duplicatesError", { count: duplicateCount })
       );
       return;
     }
 
     if (readyCount > quota.remaining) {
       setErrorMessage(
-        `Anda memilih ${readyCount} file, tetapi hanya ${quota.remaining} file tersedia dalam kuota Anda saat ini.`
+        t("quotaExceededError", { count: readyCount, available: quota.remaining })
       );
       return;
     }
@@ -431,20 +433,20 @@ export default function RenamePanel() {
   };
 
   const renameModes = [
-    { key: "prefix", label: "Awalan", icon: Type },
-    { key: "suffix", label: "Akhiran", icon: Type },
-    { key: "find-replace", label: "Temukan & Ganti", icon: Replace },
-    { key: "numbering", label: "Penomoran", icon: Hash },
-    { key: "case", label: "Huruf", icon: Type },
-    { key: "remove", label: "Hapus Teks", icon: Eraser },
-    { key: "pattern", label: "Pola", icon: Braces },
+    { key: "prefix", label: t("modePrefix"), icon: Type },
+    { key: "suffix", label: t("modeSuffix"), icon: Type },
+    { key: "find-replace", label: t("modeFindReplace"), icon: Replace },
+    { key: "numbering", label: t("modeNumbering"), icon: Hash },
+    { key: "case", label: t("modeCase"), icon: Type },
+    { key: "remove", label: t("modeRemove"), icon: Eraser },
+    { key: "pattern", label: t("modePattern"), icon: Braces },
   ];
 
   const runButtonLabel = isRenaming
-    ? "Mengganti nama..."
+    ? t("renaming")
     : hasFolderPermission
-    ? `UBAH NAMA ${readyCount} FILE${readyCount === 1 ? "" : "S"}`
-    : `UNDUH ZIP (${readyCount} FILE${readyCount === 1 ? "" : "S"})`;
+    ? t("runRename", { count: readyCount })
+    : t("runZip", { count: readyCount });
 
   return (
     <div className="flex w-[360px] shrink-0 flex-col border-l border-border bg-panel overflow-hidden min-h-0">
@@ -461,12 +463,12 @@ export default function RenamePanel() {
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-3">
         <div className="flex items-center gap-2">
           <Wand2 size={14} className="text-primary" />
-          <span className="text-[13px] font-medium">Ubah Nama</span>
+          <span className="text-[13px] font-medium">{t("title")}</span>
         </div>
         <button
           className="toolbar-button !p-1"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          aria-label="Tampilkan opsi lanjutan"
+          aria-label={t("advancedAria")}
         >
           {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
@@ -474,7 +476,7 @@ export default function RenamePanel() {
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         <div>
-          <label className="label">Mode</label>
+          <label className="label">{t("modeLabel")}</label>
           <div className="flex flex-wrap gap-1">
             {renameModes.map((mode) => {
               const Icon = mode.icon;
@@ -499,30 +501,30 @@ export default function RenamePanel() {
 
         {rule.mode === "prefix" && (
           <div>
-            <label className="label">Awalan</label>
+            <label className="label">{t("prefixLabel")}</label>
             <input
               className="input"
-              placeholder="mis. Liburan_"
+              placeholder={t("prefixPlaceholder")}
               value={rule.prefix}
               onChange={(e) => setRule({ prefix: e.target.value })}
             />
             <p className="mt-1 text-[11px] text-text-muted">
-              Menambahkan teks di awal nama file
+              {t("prefixHint")}
             </p>
           </div>
         )}
 
         {rule.mode === "suffix" && (
           <div>
-            <label className="label">Akhiran</label>
+            <label className="label">{t("suffixLabel")}</label>
             <input
               className="input"
-              placeholder="mis. _Final"
+              placeholder={t("suffixPlaceholder")}
               value={rule.suffix}
               onChange={(e) => setRule({ suffix: e.target.value })}
             />
             <p className="mt-1 text-[11px] text-text-muted">
-              Menambahkan teks di akhir nama (sebelum ekstensi)
+              {t("suffixHint")}
             </p>
           </div>
         )}
@@ -530,19 +532,19 @@ export default function RenamePanel() {
         {rule.mode === "find-replace" && (
           <>
             <div>
-              <label className="label">Temukan</label>
+              <label className="label">{t("findLabel")}</label>
               <input
                 className="input"
-                placeholder="Teks yang dicari"
+                placeholder={t("findPlaceholder")}
                 value={rule.findText}
                 onChange={(e) => setRule({ findText: e.target.value })}
               />
             </div>
             <div>
-              <label className="label">Ganti dengan</label>
+              <label className="label">{t("replaceLabel")}</label>
               <input
                 className="input"
-                placeholder="Teks pengganti"
+                placeholder={t("replacePlaceholder")}
                 value={rule.replaceText}
                 onChange={(e) => setRule({ replaceText: e.target.value })}
               />
@@ -554,7 +556,7 @@ export default function RenamePanel() {
                 onChange={(e) => setRule({ caseSensitive: e.target.checked })}
                 className="h-4 w-4"
               />
-              Peka huruf besar/kecil
+              {t("caseSensitive")}
             </label>
           </>
         )}
@@ -563,7 +565,7 @@ export default function RenamePanel() {
           <>
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="label">Mulai</label>
+                <label className="label">{t("startLabel")}</label>
                 <input
                   type="number"
                   className="input"
@@ -574,7 +576,7 @@ export default function RenamePanel() {
                 />
               </div>
               <div>
-                <label className="label">Kenaikan</label>
+                <label className="label">{t("incrementLabel")}</label>
                 <input
                   type="number"
                   className="input"
@@ -585,7 +587,7 @@ export default function RenamePanel() {
                 />
               </div>
               <div>
-                <label className="label">Padding</label>
+                <label className="label">{t("paddingLabel")}</label>
                 <input
                   type="number"
                   className="input"
@@ -597,14 +599,19 @@ export default function RenamePanel() {
               </div>
             </div>
             <p className="text-[11px] text-text-muted">
-              pratinjau: {String(rule.startNumber || 1).padStart(rule.padding || 3, "0")}
+              {t("numberingPreview", {
+                value: String(rule.startNumber || 1).padStart(
+                  rule.padding || 3,
+                  "0"
+                ),
+              })}
             </p>
           </>
         )}
 
         {rule.mode === "case" && (
           <div>
-            <label className="label">Jenis Huruf</label>
+            <label className="label">{t("caseTypeLabel")}</label>
             <select
               className="select"
               value={rule.caseType}
@@ -612,25 +619,25 @@ export default function RenamePanel() {
                 setRule({ caseType: e.target.value as typeof rule.caseType })
               }
             >
-              <option value="uppercase">HURUF BESAR</option>
-              <option value="lowercase">huruf kecil</option>
-              <option value="title">Judul (Title Case)</option>
-              <option value="sentence">Kalimat (Sentence case)</option>
+              <option value="uppercase">{t("caseUpper")}</option>
+              <option value="lowercase">{t("caseLower")}</option>
+              <option value="title">{t("caseTitle")}</option>
+              <option value="sentence">{t("caseSentence")}</option>
             </select>
           </div>
         )}
 
         {rule.mode === "remove" && (
           <div>
-            <label className="label">Teks yang dihapus</label>
+            <label className="label">{t("removeLabel")}</label>
             <input
               className="input"
-              placeholder="Teks untuk dihapus"
+              placeholder={t("removePlaceholder")}
               value={rule.removeText}
               onChange={(e) => setRule({ removeText: e.target.value })}
             />
             <p className="mt-1 text-[11px] text-text-muted">
-              Menghapus semua kemunculan teks dari nama file
+              {t("removeHint")}
             </p>
           </div>
         )}
@@ -638,22 +645,22 @@ export default function RenamePanel() {
         {rule.mode === "pattern" && (
           <>
             <div>
-              <label className="label">Pola</label>
+              <label className="label">{t("patternLabel")}</label>
               <input
                 className="input"
-                placeholder="mis. PPPK_{nnn}"
+                placeholder={t("patternPlaceholder")}
                 value={rule.pattern}
                 onChange={(e) => setRule({ pattern: e.target.value })}
               />
               <div className="mt-2 flex flex-wrap gap-1">
                 {[
-                  ["{name}", "Nama asli"],
-                  ["{n}", "Angka 1"],
-                  ["{nn}", "Angka 01"],
-                  ["{nnn}", "Angka 001"],
-                  ["{date}", "YYYY-MM-DD"],
-                  ["{time}", "HH-MM-SS"],
-                  ["{ext}", "Ekstensi"],
+                  ["{name}", t("patternTokenName")],
+                  ["{n}", t("patternTokenN")],
+                  ["{nn}", t("patternTokenNN")],
+                  ["{nnn}", t("patternTokenNNN")],
+                  ["{date}", t("patternTokenDate")],
+                  ["{time}", t("patternTokenTime")],
+                  ["{ext}", t("patternTokenExt")],
                 ].map(([variable, desc]) => (
                   <button
                     key={variable}
@@ -671,7 +678,7 @@ export default function RenamePanel() {
             {showAdvanced && (
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="label">Mulai</label>
+                  <label className="label">{t("startLabel")}</label>
                   <input
                     type="number"
                     className="input"
@@ -682,7 +689,7 @@ export default function RenamePanel() {
                   />
                 </div>
                 <div>
-                  <label className="label">Kenaikan</label>
+                  <label className="label">{t("incrementLabel")}</label>
                   <input
                     type="number"
                     className="input"
@@ -693,7 +700,7 @@ export default function RenamePanel() {
                   />
                 </div>
                 <div>
-                  <label className="label">Padding</label>
+                  <label className="label">{t("paddingLabel")}</label>
                   <input
                     type="number"
                     className="input"
@@ -711,7 +718,7 @@ export default function RenamePanel() {
         {showAdvanced && (
           <div className="space-y-3 border-t border-border pt-3">
             <div>
-              <label className="label">Penanganan Konflik</label>
+              <label className="label">{t("conflictLabel")}</label>
               <select
                 className="select"
                 value={conflictResolution}
@@ -721,11 +728,9 @@ export default function RenamePanel() {
                   )
                 }
               >
-                <option value="auto-resolve">
-                  Selesaikan otomatis (file (1).png)
-                </option>
-                <option value="skip">Lewati konflik</option>
-                <option value="cancel">Batalkan seluruh operasi saat konflik</option>
+                <option value="auto-resolve">{t("conflictAuto")}</option>
+                <option value="skip">{t("conflictSkip")}</option>
+                <option value="cancel">{t("conflictCancel")}</option>
               </select>
             </div>
           </div>
@@ -733,11 +738,11 @@ export default function RenamePanel() {
 
         <div className="border-t border-border pt-3">
           <div className="flex items-center justify-between mb-2">
-            <label className="label !mb-0">Pratinjau Langsung</label>
+            <label className="label !mb-0">{t("previewLabel")}</label>
             <button
               className="toolbar-button !p-1"
               onClick={() => setShowPreview(!showPreview)}
-              aria-label="Tampilkan/sembunyikan pratinjau"
+              aria-label={t("previewToggleAria")}
             >
               {showPreview ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
@@ -746,13 +751,13 @@ export default function RenamePanel() {
           {showPreview && (
             <div className="max-h-56 overflow-y-auto rounded border border-border bg-background">
               <div className="flex items-center gap-2 border-b border-border px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                <span className="flex-1">Sebelum</span>
+                <span className="flex-1">{t("before")}</span>
                 <ArrowRight size={11} />
-                <span className="flex-1">Sesudah</span>
+                <span className="flex-1">{t("after")}</span>
               </div>
               {preview.length === 0 ? (
                 <p className="p-3 text-center text-[12px] text-text-muted">
-                  Pilih file untuk melihat pratinjau
+                  {t("previewEmpty")}
                 </p>
               ) : (
                 <div className="divide-y divide-border">
@@ -789,7 +794,7 @@ export default function RenamePanel() {
                   ))}
                   {preview.length > 8 && (
                     <p className="px-2.5 py-1.5 text-[11px] text-text-muted">
-                      +{preview.length - 8} lainnya
+                      {t("moreOthers", { count: preview.length - 8 })}
                     </p>
                   )}
                 </div>
@@ -801,19 +806,19 @@ export default function RenamePanel() {
             {invalidCount > 0 && (
               <p className="flex items-center gap-1.5 text-[12px] text-danger">
                 <X size={13} />
-                {invalidCount} nama tidak valid
+                {t("invalidBadge", { count: invalidCount })}
               </p>
             )}
             {duplicateCount > 0 && (
               <p className="flex items-center gap-1.5 text-[12px] text-warning">
                 <TriangleAlert size={13} />
-                {duplicateCount} duplikat
+                {t("duplicateBadge", { count: duplicateCount })}
               </p>
             )}
             {readyCount > 0 && (
               <p className="flex items-center gap-1.5 text-[12px] text-success">
                 <Check size={13} />
-                {readyCount} siap
+                {t("readyBadge", { count: readyCount })}
               </p>
             )}
           </div>
@@ -822,11 +827,7 @@ export default function RenamePanel() {
         {!hasFolderPermission && (
           <div className="flex items-start gap-2 rounded border border-warning-soft bg-warning-soft p-2.5 text-[12px] text-warning">
             <ShieldCheck size={14} className="mt-0.5 shrink-0" />
-            <p>
-              Mode cadangan: mengunduh file yang diubah namanya dalam arsip ZIP.
-              Untuk mengubah nama file langsung di folder, buka folder yang
-              mendukung File System Access.
-            </p>
+            <p>{t("fallbackNote")}</p>
           </div>
         )}
       </div>
@@ -840,7 +841,7 @@ export default function RenamePanel() {
             }}
           >
             <X size={16} />
-            Batalkan
+            {t("cancel")}
           </button>
         ) : (
           <button
@@ -857,20 +858,19 @@ export default function RenamePanel() {
         {!userState && quota.remaining <= 0 && readyCount > 0 && (
           <div className="mt-2 space-y-1.5">
             <div className="rounded border border-warning-soft bg-warning-soft p-2 text-[11px] text-warning">
-              Kuota gratis Anda telah terpakai. Mendaftar atau membeli token
-              menambah batas file.
+              {t("quotaExhausted")}
             </div>
             <button
               className="btn btn-secondary w-full"
               onClick={() => signIn("google")}
             >
-              Masuk dengan Google
+              {t("signInGoogle")}
             </button>
             <button
               className="btn btn-primary w-full"
               onClick={() => setShowPayment(true)}
             >
-              Beli Token
+              {t("buyToken")}
             </button>
           </div>
         )}

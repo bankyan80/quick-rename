@@ -32,7 +32,7 @@ export function useKeyboardShortcuts() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
         e.preventDefault();
         const input = document.querySelector(
-          'input[aria-label="Search files"]'
+          '[data-search-input]'
         ) as HTMLInputElement;
         input?.focus();
         input?.select();

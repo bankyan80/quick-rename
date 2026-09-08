@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import {
   X,
   Shield,
@@ -46,6 +47,7 @@ interface AdminSettings {
 }
 
 export default function AdminModal() {
+  const t = useTranslations("adminModal");
   const setShowAdmin = useAppStore((s) => s.setShowAdmin);
   const [tab, setTab] = useState<Tab>("orders");
   const [orders, setOrders] = useState<PaymentOrderRow[]>([]);
@@ -105,7 +107,7 @@ export default function AdminModal() {
           if (!cancelled && result) setSettings(result);
         }
       } catch {
-        if (!cancelled) setError("Gagal memuat data");
+        if (!cancelled) setError(t("loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -113,7 +115,7 @@ export default function AdminModal() {
     return () => {
       cancelled = true;
     };
-  }, [tab, refreshOrders, refreshUsers, refreshSettings]);
+  }, [tab, refreshOrders, refreshUsers, refreshSettings, t]);
 
   const handleOrderAction = async (orderId: string, action: "approve" | "reject") => {
     setError(null);
@@ -125,13 +127,13 @@ export default function AdminModal() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Tindakan gagal");
+        setError(data.error || t("actionFailed"));
       } else {
         const result = await refreshOrders();
         setOrders(result);
       }
     } catch {
-      setError("Kesalahan jaringan");
+      setError(t("networkError"));
     }
   };
 
@@ -150,7 +152,7 @@ export default function AdminModal() {
       const result = await refreshUsers();
       setUsers(result);
     } catch {
-      setError("Tindakan gagal");
+      setError(t("actionFailed"));
     }
   };
 
@@ -168,9 +170,9 @@ export default function AdminModal() {
           filesPerToken: String(settings.filesPerToken),
         }),
       });
-      alert("Pengaturan disimpan");
+      alert(t("saved"));
     } catch {
-      setError("Gagal menyimpan pengaturan");
+      setError(t("actionFailed"));
     }
   };
 
@@ -179,12 +181,12 @@ export default function AdminModal() {
       <div className="modal-overlay" onClick={() => setShowAdmin(false)}>
         <div className="modal w-full max-w-sm p-5 text-center">
           <Shield size={40} className="mx-auto mb-3 text-danger" />
-          <p className="text-[15px] font-semibold">Tidak Diizinkan</p>
+          <p className="text-[15px] font-semibold">{t("unauthorizedTitle")}</p>
           <p className="mt-1 text-[13px] text-text-secondary mb-4">
-            Anda tidak memiliki akses admin. Hubungi administrator.
+            {t("unauthorizedBody")}
           </p>
           <button className="btn btn-secondary w-full" onClick={() => setShowAdmin(false)}>
-            Tutup
+            {t("closeAria")}
           </button>
         </div>
       </div>
@@ -197,17 +199,17 @@ export default function AdminModal() {
         className="modal w-full max-w-3xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Panel admin"
+        aria-label={t("title")}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="flex items-center gap-2 text-[16px] font-semibold">
             <Shield size={16} className="text-primary" />
-            Panel Admin
+            {t("title")}
           </h2>
           <button
             className="toolbar-button !p-1"
             onClick={() => setShowAdmin(false)}
-            aria-label="Tutup admin"
+            aria-label={t("closeAria")}
           >
             <X size={16} />
           </button>
@@ -216,9 +218,9 @@ export default function AdminModal() {
         <div className="flex gap-1 border-b border-border px-5 py-2">
           {(
             [
-              ["orders", "Pesanan Pembayaran"],
-              ["users", "Pengguna"],
-              ["settings", "Pengaturan"],
+              ["orders", t("tabOrders")],
+              ["users", t("tabUsers")],
+              ["settings", t("tabSettings")],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -249,7 +251,7 @@ export default function AdminModal() {
                 </div>
               ) : orders.length === 0 ? (
                 <p className="py-6 text-center text-text-muted text-[13px]">
-                  Belum ada pesanan pembayaran.
+                  {t("ordersEmpty")}
                 </p>
               ) : (
                 orders.map((o) => (
@@ -295,8 +297,8 @@ export default function AdminModal() {
 
                     {o.proof && (
                       <div className="mt-2 rounded bg-background px-2.5 py-1.5 text-[11px] text-text-secondary">
-                        <span className="text-text-muted">Bukti:</span>{" "}
-                        {o.proof.reference || o.proof.notes || "Dikirim"}
+                        <span className="text-text-muted">{t("proofPrefix")}</span>{" "}
+                        {o.proof.reference || o.proof.notes || t("proofDefault")}
                         <span className="text-text-muted"> · </span>
                         {new Date(o.proof.submittedAt).toLocaleString()}
                       </div>
@@ -311,7 +313,7 @@ export default function AdminModal() {
                           disabled={loading}
                         >
                           <CheckCircle2 size={14} />
-                          Setujui (+{o.fileQuantity} file)
+                          {t("acceptLabel", { count: o.fileQuantity })}
                         </button>
                         <button
                           className="btn btn-secondary !h-8 text-[12px]"
@@ -319,7 +321,7 @@ export default function AdminModal() {
                           disabled={loading}
                         >
                           <XCircle size={14} />
-                          Tolak
+                          {t("reject")}
                         </button>
                       </div>
                     )}
@@ -333,7 +335,7 @@ export default function AdminModal() {
             <div>
               <div className="mb-3 flex items-center gap-2 text-[12px] text-text-secondary">
                 <Users size={14} />
-                Kelola peran pengguna dan saldo token
+                {t("usersHint")}
               </div>
               <div className="space-y-2">
                 {users.map((u) => (
@@ -359,7 +361,7 @@ export default function AdminModal() {
                           {u.name}
                         </p>
                         <p className="truncate text-[11px] text-text-muted">
-                          {u.email} · saldo: {u.tokenAccount?.balance ?? 0} file
+                          {u.email} · {t("balance", { count: u.tokenAccount?.balance ?? 0 })}
                         </p>
                       </div>
                     </div>
@@ -376,7 +378,7 @@ export default function AdminModal() {
                       </select>
                       <button
                         className="btn btn-secondary !h-7 !px-2"
-                        title="Tambah 100 file"
+                        title={t("addFilesTitle")}
                         onClick={() =>
                           handleUserAction(u.id, "adjust-token", { tokenAdjustment: 100 })
                         }
@@ -385,7 +387,7 @@ export default function AdminModal() {
                       </button>
                       <button
                         className="btn btn-secondary !h-7 !px-2"
-                        title="Kurangi 100 file"
+                        title={t("removeFilesTitle")}
                         onClick={() =>
                           handleUserAction(u.id, "adjust-token", { tokenAdjustment: -100 })
                         }
@@ -403,44 +405,44 @@ export default function AdminModal() {
             <div className="space-y-4 max-w-md">
               <div className="flex items-center gap-2 text-[12px] text-text-secondary">
                 <Settings2 size={14} />
-                Konfigurasi pembayaran
+                {t("settingsHint")}
               </div>
               <div>
-                <label className="label">Nama pembayaran DANA</label>
+                <label className="label">{t("danaName")}</label>
                 <input
                   className="input"
                   value={settings.danaPaymentName}
                   onChange={(e) =>
                     setSettings({ ...settings, danaPaymentName: e.target.value })
                   }
-                  placeholder="a.n. nama yang ditampilkan ke pembeli"
+                  placeholder={t("danaNamePlaceholder")}
                 />
               </div>
               <div>
-                <label className="label">Nomor telepon DANA</label>
+                <label className="label">{t("danaNumber")}</label>
                 <input
                   className="input"
                   value={settings.danaPaymentNumber}
                   onChange={(e) =>
                     setSettings({ ...settings, danaPaymentNumber: e.target.value })
                   }
-                  placeholder="08xx..."
+                  placeholder={t("danaNumberPlaceholder")}
                 />
               </div>
               <div>
-                <label className="label">URL gambar QRIS</label>
+                <label className="label">{t("qrisUrl")}</label>
                 <input
                   className="input"
                   value={settings.qrisImageUrl}
                   onChange={(e) =>
                     setSettings({ ...settings, qrisImageUrl: e.target.value })
                   }
-                  placeholder="/qris.png atau https://..."
+                  placeholder={t("qrisUrlPlaceholder")}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Harga token (Rp)</label>
+                  <label className="label">{t("tokenPrice")}</label>
                   <input
                     type="number"
                     className="input"
@@ -454,7 +456,7 @@ export default function AdminModal() {
                   />
                 </div>
                 <div>
-                  <label className="label">File per token</label>
+                  <label className="label">{t("filesPerToken")}</label>
                   <input
                     type="number"
                     className="input"
@@ -472,7 +474,7 @@ export default function AdminModal() {
                 className="btn btn-primary"
                 onClick={handleSaveSettings}
               >
-                Simpan Pengaturan
+                {t("save")}
               </button>
             </div>
           )}

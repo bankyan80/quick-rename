@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import { X, LogOut, Shield, User as UserIcon } from "lucide-react";
 import { signOut, signIn } from "next-auth/react";
 
@@ -14,6 +15,7 @@ interface ProfileOrder {
 }
 
 export default function ProfileModal() {
+  const t = useTranslations("profileModal");
   const setShowProfile = useAppStore((s) => s.setShowProfile);
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
@@ -48,17 +50,17 @@ export default function ProfileModal() {
         className="modal w-full max-w-md p-5"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Profil"
+        aria-label={t("ariaLabel")}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="flex items-center gap-2 text-[16px] font-semibold">
             <UserIcon size={16} className="text-primary" />
-            Akun
+            {t("title")}
           </h2>
           <button
             className="toolbar-button !p-1"
             onClick={() => setShowProfile(false)}
-            aria-label="Tutup"
+            aria-label={t("closeAria")}
           >
             <X size={16} />
           </button>
@@ -84,7 +86,7 @@ export default function ProfileModal() {
                   <p className="text-[14px] font-medium">{user.name}</p>
                   {isAdmin && (
                     <span className="rounded bg-primary-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                      Admin
+                      {t("adminBadge")}
                     </span>
                   )}
                 </div>
@@ -94,21 +96,19 @@ export default function ProfileModal() {
 
             <div className="rounded border border-border bg-card p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
-                Kuota & Saldo
+                {t("quotaBalance")}
               </p>
               <div className="space-y-1.5 text-[13px]">
                 <p className="flex justify-between">
-                  <span className="text-text-secondary">File Google terpakai</span>
+                  <span className="text-text-secondary">{t("googleUsed")}</span>
                   <span className="font-medium">
                     {quota.used} / {quota.total <= 10 ? quota.total : 10}
                   </span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-text-secondary">Saldo token</span>
+                  <span className="text-text-secondary">{t("tokenBalance")}</span>
                   <span className="font-medium">
-                    {quota.remaining > 10
-                      ? `${quota.remaining} files`
-                      : `${Math.max(0, quota.remaining)} files`}
+                    {t("tokenBalanceValue", { count: Math.max(0, quota.remaining) })}
                   </span>
                 </p>
               </div>
@@ -122,7 +122,7 @@ export default function ProfileModal() {
                   setShowPayment(true);
                 }}
               >
-                Beli Token
+                {t("buyToken")}
               </button>
 
               {isAdmin && (
@@ -134,17 +134,17 @@ export default function ProfileModal() {
                   }}
                 >
                   <Shield size={15} />
-                  Panel Admin
+                  {t("adminPanel")}
                 </button>
               )}
             </div>
 
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted mb-2">
-                Riwayat pembelian
+                {t("purchaseHistory")}
               </p>
               {orders.length === 0 ? (
-                <p className="text-[12px] text-text-muted">Belum ada pesanan.</p>
+                <p className="text-[12px] text-text-muted">{t("noOrders")}</p>
               ) : (
                 <div className="max-h-40 overflow-y-auto space-y-1.5">
                   {orders.map((o) => (
@@ -181,20 +181,19 @@ export default function ProfileModal() {
               onClick={handleLogout}
             >
               <LogOut size={15} />
-              Keluar
+              {t("logout")}
             </button>
           </div>
         ) : (
           <div className="text-center py-6">
             <p className="text-[14px] text-text-secondary mb-4">
-              Masuk dengan Google untuk mendapatkan kuota 10 file dan membeli
-              token.
+              {t("guestPrompt")}
             </p>
             <button
               className="btn btn-primary w-full"
               onClick={() => signIn("google")}
             >
-              Lanjutkan dengan Google
+              {t("continueWithGoogle")}
             </button>
           </div>
         )}

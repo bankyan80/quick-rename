@@ -1,9 +1,11 @@
 "use client";
 
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import { Zap, Shield, Lock, History, Wifi } from "lucide-react";
 
 export default function BottomBar() {
+  const t = useTranslations("bottomBar");
   const selectedCount = useAppStore((s) => s.selectedCount);
   const totalCount = useAppStore((s) => s.files.length);
   const quota = useAppStore((s) => s.quota);
@@ -38,25 +40,25 @@ export default function BottomBar() {
 
   const quotaLabel = user
     ? quota.remaining > 10
-      ? `TOKEN · sisa ${quota.remaining} file`
-      : `GOOGLE · sisa ${quota.remaining} file`
-    : `GRATIS · sisa ${quota.remaining} file`;
+      ? t("quotaToken", { count: quota.remaining })
+      : t("quotaGoogle", { count: quota.remaining })
+    : t("quotaFree", { count: quota.remaining });
 
   return (
     <div className="flex h-9 shrink-0 items-center gap-3 border-t border-border bg-panel px-3">
       {hasFolderPermission ? (
         <span className="flex items-center gap-1.5 text-[11px] text-text-muted">
           <Shield size={12} className="text-success" />
-          Akses folder aktif
+          {t("folderActive")}
         </span>
       ) : (
         <button
           className="flex items-center gap-1.5 text-[11px] text-warning hover:text-warning cursor-pointer"
           onClick={handleSelectFiles}
-          title="Akses folder tidak tersedia. File akan diubah namanya melalui ZIP."
+          title={t("fallbackTitle")}
         >
           <Wifi size={12} />
-          Mode cadangan — pilih file
+          {t("fallback")}
         </button>
       )}
 
@@ -69,26 +71,26 @@ export default function BottomBar() {
 
       {isRenaming && (
         <span className="flex items-center gap-1.5 text-[11px] text-text-secondary">
-          Mengubah nama {renameProgress.processed} / {renameProgress.total}
+          {t("renaming", { processed: renameProgress.processed, total: renameProgress.total })}
         </span>
       )}
 
       <span className="text-[11px] text-text-muted">
-        {selectedCount} / {totalCount} dipilih
+        {t("selected", { selected: selectedCount, total: totalCount })}
       </span>
 
       <button
         className="text-[11px] text-text-muted hover:text-text-primary transition-colors flex items-center gap-1.5"
         onClick={() => setShowHistory(true)}
-        title="Lihat riwayat penggantian nama"
+        title={t("historyTitle")}
       >
         <History size={12} />
-        Riwayat
+        {t("history")}
       </button>
 
-      <span className="flex items-center gap-1.5 text-[11px] text-text-muted" title="Privasi: file tetap di perangkat Anda">
+      <span className="flex items-center gap-1.5 text-[11px] text-text-muted" title={t("privacyTitle")}>
         <Lock size={12} />
-        File tetap di perangkat Anda
+        {t("privacy")}
       </span>
     </div>
   );

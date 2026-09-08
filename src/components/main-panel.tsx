@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useRef } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Search,
   FolderOpen,
@@ -31,20 +32,9 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import type { FileEntry, RenameMode } from "@/types";
 import ContextMenu from "@/components/context-menu";
 
-const FILTERS = [
-  { key: "all", label: "Semua file", icon: FileText },
-  { key: "pdf", label: "PDF", icon: FileText },
-  { key: "image", label: "Gambar", icon: ImageIcon },
-  { key: "document", label: "Dokumen", icon: FileText },
-  { key: "spreadsheet", label: "Spreadsheet", icon: Table2 },
-  { key: "archive", label: "Arsip", icon: Archive },
-  { key: "video", label: "Video", icon: Video },
-  { key: "audio", label: "Audio", icon: Music },
-  { key: "code", label: "Kode", icon: Code2 },
-  { key: "other", label: "Lainnya", icon: Package },
-];
-
 export default function MainPanel() {
+  const t = useTranslations("mainPanel");
+  const locale = useLocale();
   const files = useAppStore((s) => s.files);
   const setFiles = useAppStore((s) => s.setFiles);
   const searchQuery = useAppStore((s) => s.searchQuery);
@@ -72,7 +62,7 @@ export default function MainPanel() {
 
   const handleOpenFolder = async () => {
     if (!isFileSystemAccessSupported()) {
-      alert("API File System Access tidak didukung oleh peramban ini.");
+      alert(t("apiUnsupported"));
       return;
     }
     try {
@@ -82,7 +72,7 @@ export default function MainPanel() {
         setFolderHandle(result.handle, result.handle.name);
       }
     } catch {
-      alert("Tidak dapat membuka folder.");
+      alert(t("openFailed"));
     }
   };
 
@@ -170,12 +160,25 @@ export default function MainPanel() {
   };
 
   const sortOptions = [
-    { key: "name-asc", label: "Nama A-Z" },
-    { key: "name-desc", label: "Nama Z-A" },
-    { key: "size", label: "Ukuran" },
-    { key: "modified", label: "Tanggal Ubah" },
-    { key: "extension", label: "Ekstensi" },
-    { key: "selection", label: "Urutan Pilihan" },
+    { key: "name-asc", label: t("sortNameAsc") },
+    { key: "name-desc", label: t("sortNameDesc") },
+    { key: "size", label: t("sortSize") },
+    { key: "modified", label: t("sortModified") },
+    { key: "extension", label: t("sortExtension") },
+    { key: "selection", label: t("sortSelection") },
+  ];
+
+  const FILTERS = [
+    { key: "all", label: t("filterAll"), icon: FileText },
+    { key: "pdf", label: t("filterPdf"), icon: FileText },
+    { key: "image", label: t("filterImage"), icon: ImageIcon },
+    { key: "document", label: t("filterDocument"), icon: FileText },
+    { key: "spreadsheet", label: t("filterSpreadsheet"), icon: Table2 },
+    { key: "archive", label: t("filterArchive"), icon: Archive },
+    { key: "video", label: t("filterVideo"), icon: Video },
+    { key: "audio", label: t("filterAudio"), icon: Music },
+    { key: "code", label: t("filterCode"), icon: Code2 },
+    { key: "other", label: t("filterOther"), icon: Package },
   ];
 
   const getFileIcon = (file: FileEntry) => {
@@ -206,7 +209,7 @@ export default function MainPanel() {
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <FolderIcon size={15} className="shrink-0 text-text-muted" />
           <span className="truncate text-[13px] font-medium">
-            {folderName || "File"}
+            {folderName || t("folderFallback")}
           </span>
         </div>
 
@@ -217,19 +220,20 @@ export default function MainPanel() {
           />
           <input
             className="input !h-8 w-48 pl-8 text-[12px]"
-            placeholder="Cari file..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
+            data-search-input
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Escape") setSearchQuery("");
             }}
-            aria-label="Search files"
+            aria-label={t("searchPlaceholder")}
           />
           {searchQuery && (
             <button
               className="absolute right-2 text-text-muted hover:text-text-primary"
               onClick={() => setSearchQuery("")}
-              aria-label="Bersihkan pencarian"
+              aria-label={t("clearSearchAria")}
             >
               <X size={13} />
             </button>
@@ -239,11 +243,11 @@ export default function MainPanel() {
         <button
           className="toolbar-button ml-1"
           onClick={() => setShowSortMenu(!showSortMenu)}
-          aria-label="Urutkan file"
+          aria-label={t("sortAria")}
         >
           <ArrowUpDown size={14} />
           <span className="text-[12px]">
-            {sortOptions.find((o) => o.key === sortMode)?.label || "Urutkan"}
+            {sortOptions.find((o) => o.key === sortMode)?.label || t("sortDefault")}
           </span>
         </button>
 
@@ -267,7 +271,7 @@ export default function MainPanel() {
         <button
           className="toolbar-button ml-1"
           onClick={selectedCount > 0 ? deselectAllFiles : selectAllFiles}
-          aria-label="Pilih semua atau batalkan pilihan"
+          aria-label={t("selectToggleAria")}
         >
           {selectedCount > 0 ? (
             <Square size={14} />
@@ -275,7 +279,9 @@ export default function MainPanel() {
             <CheckSquare size={14} />
           )}
           <span className="text-[12px]">
-            {selectedCount > 0 ? `${selectedCount} dipilih` : "Pilih Semua"}
+            {selectedCount > 0
+              ? t("selectedCount", { count: selectedCount })
+              : t("selectAll")}
           </span>
         </button>
       </div>
@@ -310,9 +316,9 @@ export default function MainPanel() {
       </div>
 
       <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-text-muted border-b border-border shrink-0">
-        <span className="w-16 text-left font-medium">File</span>
-        <span className="w-10 text-right font-medium">Ukuran</span>
-        <span className="flex-1 text-right font-medium">Diubah</span>
+        <span className="w-16 text-left font-medium">{t("headerFile")}</span>
+        <span className="w-10 text-right font-medium">{t("headerSize")}</span>
+        <span className="flex-1 text-right font-medium">{t("headerModified")}</span>
       </div>
 
       <div ref={parentRef} className="flex-1 overflow-auto">
@@ -321,8 +327,8 @@ export default function MainPanel() {
             <FolderOpen size={40} className="mb-3 text-text-muted" />
             <p className="text-[14px] font-medium text-text-primary">
               {files.length === 0
-                ? "Belum ada file yang dimuat"
-                : "Tidak ada file yang cocok dengan pencarian atau filter"}
+                ? t("emptyNone")
+                : t("emptyNoMatch")}
             </p>
             {files.length === 0 ? (
               <button
@@ -330,7 +336,7 @@ export default function MainPanel() {
                 onClick={handleOpenFolder}
               >
                 <FolderOpen size={15} />
-                Buka Folder
+                {t("openFolder")}
               </button>
             ) : (
               <button
@@ -341,7 +347,7 @@ export default function MainPanel() {
                   setActiveFilter("all");
                 }}
               >
-                Bersihkan filter
+                {t("clearFilter")}
               </button>
             )}
           </div>
@@ -391,7 +397,7 @@ export default function MainPanel() {
                     {getFileIcon(file)}
                   </span>
                   <span className="w-16 shrink-0 text-left text-[10px] uppercase text-text-muted">
-                    {file.extension || "File"}
+                    {file.extension || t("folderFallback")}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-[13px]">
                     {file.name}
@@ -401,7 +407,7 @@ export default function MainPanel() {
                     {formatFileSize(file.size)}
                   </span>
                   <span className="flex w-20 shrink-0 justify-end text-[12px] text-text-muted">
-                    {formatDate(file.lastModified)}
+                    {formatDate(file.lastModified, locale)}
                   </span>
                 </div>
               );

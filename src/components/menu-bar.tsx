@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAppStore } from "@/store/use-store";
+import { useTranslations } from "next-intl";
 import {
   FolderOpen,
   Files,
@@ -27,6 +28,7 @@ interface MenuItem {
 }
 
 export default function MenuBar() {
+  const t = useTranslations("menuBar");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -51,9 +53,7 @@ export default function MenuBar() {
   const handleOpenFolder = async () => {
     try {
       if (!isFileSystemAccessSupported()) {
-        alert(
-          "Peramban Anda tidak mendukung API File System Access. Gunakan opsi 'Pilih File' sebagai gantinya."
-        );
+        alert(t("apiUnsupported"));
         return;
       }
 
@@ -63,9 +63,7 @@ export default function MenuBar() {
         setFolderHandle(result.handle, result.handle.name);
       }
     } catch {
-      alert(
-        "Tidak dapat membuka folder. Periksa izin akses atau coba lagi."
-      );
+      alert(t("openFailed"));
     }
   };
 
@@ -152,18 +150,18 @@ export default function MenuBar() {
   const menuItems: Record<string, MenuItem[]> = {
     file: [
       {
-        label: "Buka Folder",
+        label: t("openFolder"),
         icon: <FolderOpen size={14} />,
         action: handleOpenFolder,
       },
       {
-        label: "Pilih File",
+        label: t("selectFiles"),
         icon: <Files size={14} />,
         action: handleSelectFiles,
       },
       { label: "", icon: <></>, action: () => {}, separator: true },
       {
-        label: "Bersihkan Semua",
+        label: t("clearAll"),
         icon: <Files size={14} />,
         action: handleClearAll,
         disabled: files.length === 0,
@@ -171,7 +169,7 @@ export default function MenuBar() {
     ],
     rename: [
       {
-        label: "Ubah Nama dengan Awalan",
+        label: t("renameWithPrefix"),
         icon: <Zap size={14} />,
         action: () => {
           setRule({ mode: "prefix" });
@@ -179,7 +177,7 @@ export default function MenuBar() {
         },
       },
       {
-        label: "Ubah Nama dengan Akhiran",
+        label: t("renameWithSuffix"),
         icon: <Zap size={14} />,
         action: () => {
           setRule({ mode: "suffix" });
@@ -187,7 +185,7 @@ export default function MenuBar() {
         },
       },
       {
-        label: "Temukan & Ganti",
+        label: t("findReplace"),
         icon: <Search size={14} />,
         action: () => {
           setRule({ mode: "find-replace" });
@@ -195,7 +193,7 @@ export default function MenuBar() {
         },
       },
       {
-        label: "Penomoran",
+        label: t("numbering"),
         icon: <Zap size={14} />,
         action: () => {
           setRule({ mode: "numbering" });
@@ -203,7 +201,7 @@ export default function MenuBar() {
         },
       },
       {
-        label: "Konversi Huruf",
+        label: t("case"),
         icon: <Zap size={14} />,
         action: () => {
           setRule({ mode: "case" });
@@ -211,7 +209,7 @@ export default function MenuBar() {
         },
       },
       {
-        label: "Pola",
+        label: t("pattern"),
         icon: <Zap size={14} />,
         action: () => {
           setRule({ mode: "pattern" });
@@ -221,23 +219,23 @@ export default function MenuBar() {
     ],
     tools: [
       {
-        label: "Urungkan Penggantian Terakhir",
+        label: t("undoLast"),
         icon: <Undo2 size={14} />,
         action: handleUndo,
         disabled: !lastOperation || files.length === 0,
       },
       {
-        label: "Riwayat Penggantian",
+        label: t("renameHistory"),
         icon: <History size={14} />,
         action: () => setShowHistory(true),
       },
       {
-        label: "Beli Token",
+        label: t("buyToken"),
         icon: <Zap size={14} />,
         action: () => setShowPayment(true),
       },
       {
-        label: "Pengaturan",
+        label: t("settings"),
         icon: <Settings2 size={14} />,
         action: () => setShowSettings(true),
       },
@@ -245,7 +243,7 @@ export default function MenuBar() {
       ...(isAdmin
         ? [
             {
-              label: "Panel Admin",
+              label: t("adminPanel"),
               icon: <Shield size={14} />,
               action: () => setShowAdmin(true),
             },
@@ -254,24 +252,24 @@ export default function MenuBar() {
     ],
     view: [
       {
-        label: "Tampilkan/Sembunyikan Panel",
+        label: t("togglePanel"),
         icon: <Settings2 size={14} />,
         action: toggleRenamePanel,
       },
       {
-        label: "Cari File",
+        label: t("searchFiles"),
         icon: <Search size={14} />,
         action: () => setSearchQuery(""),
       },
     ],
     help: [
       {
-        label: "Bantuan Quick Rename",
+        label: t("helpTitle"),
         icon: <HelpCircle size={14} />,
         action: () => setShowHelp(true),
       },
       {
-        label: "Profil Akun",
+        label: t("profile"),
         icon: <User size={14} />,
         action: () => setShowProfile(true),
       },
@@ -279,11 +277,11 @@ export default function MenuBar() {
   };
 
   const menuLabels: Record<string, string> = {
-    file: "File",
-    rename: "Ubah Nama",
-    tools: "Alat",
-    view: "Tampilan",
-    help: "Bantuan",
+    file: t("file"),
+    rename: t("rename"),
+    tools: t("tools"),
+    view: t("view"),
+    help: t("help"),
   };
 
   useEffect(() => {
@@ -347,7 +345,7 @@ export default function MenuBar() {
           onClick={() => signIn("google")}
         >
           <LogIn size={14} />
-          Masuk dengan Google
+          {t("signInGoogle")}
         </button>
       )}
     </div>

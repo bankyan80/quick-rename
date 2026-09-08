@@ -287,16 +287,34 @@ export function formatFileSize(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-export function formatDate(date: Date): string {
+const RELATIVE_DATE: Record<
+  string,
+  { today: string; yesterday: string; daysAgo: (count: number) => string }
+> = {
+  id: {
+    today: "Hari ini",
+    yesterday: "Kemarin",
+    daysAgo: (count) => `${count} hari lalu`,
+  },
+  en: {
+    today: "Today",
+    yesterday: "Yesterday",
+    daysAgo: (count) => `${count} days ago`,
+  },
+};
+
+export function formatDate(date: Date, locale: string = "id"): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (days === 0) return "Hari ini";
-  if (days === 1) return "Kemarin";
-  if (days < 7) return `${days} hari lalu`;
+  const rel = RELATIVE_DATE[locale] ?? RELATIVE_DATE.id;
 
-  return date.toLocaleDateString("id-ID", {
+  if (days === 0) return rel.today;
+  if (days === 1) return rel.yesterday;
+  if (days < 7) return rel.daysAgo(days);
+
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",

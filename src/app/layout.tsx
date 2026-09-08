@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 import "./globals.css";
 import ClientApp from "@/components/client-app";
 import { SessionProvider } from "@/components/session-provider";
@@ -14,27 +16,34 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Quick Rename — Pengganti Nama File Massal",
-  description:
-    "Ubah nama banyak file dengan cepat dan aman langsung dari peramban Anda. File Anda tetap di perangkat Anda.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="id"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <SessionProvider>
-          <ClientApp>{children}</ClientApp>
-        </SessionProvider>
+        <NextIntlClientProvider messages={messages}>
+          <SessionProvider>
+            <ClientApp>{children}</ClientApp>
+          </SessionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
