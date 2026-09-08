@@ -49,6 +49,7 @@ export default function MenuBar() {
   const setRenameProgress = useAppStore((s) => s.setRenameProgress);
   const setSearchQuery = useAppStore((s) => s.setSearchQuery);
   const files = useAppStore((s) => s.files);
+  const user = useAppStore((s) => s.user);
 
   const handleOpenFolder = async () => {
     try {
@@ -339,7 +340,7 @@ export default function MenuBar() {
       ))}
 
       <div className="flex-1" />
-      {!useAppStore.getState().user && (
+      {!user && (
         <button
           className="toolbar-button !py-1.5 text-[13px]"
           onClick={() => signIn("google")}
