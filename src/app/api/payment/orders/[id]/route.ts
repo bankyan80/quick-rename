@@ -66,7 +66,21 @@ export async function PATCH(
         "",
         `Referensi: ${updated.proof.reference || "-"}`,
         `Catatan: ${updated.proof.notes || "-"}`,
-      ].join("\n")
+      ].join("\n"),
+      {
+        inline_keyboard: [
+          [
+            {
+              text: "\u2705 Approve",
+              callback_data: `approve:${updated.order.id}`,
+            },
+            {
+              text: "\u274C Reject",
+              callback_data: `reject:${updated.order.id}`,
+            },
+          ],
+        ],
+      }
     );
 
     return NextResponse.json({ success: true, ...updated });
