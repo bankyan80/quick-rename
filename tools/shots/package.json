@@ -1,0 +1,13 @@
+{
+  "name": "quick-tools-shots",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Screenshot harness for Quick Tools tutorial images (uses system Edge/Chrome).",
+  "scripts": {
+    "shots": "node snap.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.49.1"
+  }
+}
