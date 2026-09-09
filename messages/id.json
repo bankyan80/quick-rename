@@ -214,6 +214,8 @@
     "amountLabel": "Jumlah",
     "scanQris": "Pindai kode QRIS untuk membayar",
     "qrisAlt": "Kode pembayaran QRIS",
+    "zoomQris": "Perbesar gambar QRIS",
+    "downloadQris": "Unduh QRIS",
     "qrisNotConfigured": "Gambar QRIS belum dikonfigurasi. Hubungi admin atau gunakan DANA.",
     "proofLabel": "Referensi pembayaran / catatan",
     "proofPlaceholder": "mis. Transfer dari DANA, ID transaksi...",

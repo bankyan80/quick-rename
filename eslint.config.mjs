@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone tools apps (each has its own eslint config):
+    "tools/**",
   ]),
 ]);
 

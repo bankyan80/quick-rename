@@ -214,6 +214,8 @@
     "amountLabel": "Amount",
     "scanQris": "Scan the QRIS code to pay",
     "qrisAlt": "QRIS payment code",
+    "zoomQris": "Zoom in on the QRIS image",
+    "downloadQris": "Download QRIS",
     "qrisNotConfigured": "QRIS image not configured. Contact the admin or use DANA.",
     "proofLabel": "Payment reference / note",
     "proofPlaceholder": "e.g. Transfer from DANA, transaction ID...",

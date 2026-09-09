@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/store/use-store";
 import { useTranslations } from "next-intl";
-import { X, Zap, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
+import { X, Zap, CreditCard, CheckCircle2, Loader2, Download } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { refreshUserQuota } from "@/lib/quota-client";
 
@@ -34,6 +34,7 @@ export default function PaymentModal() {
   const [danaNumber, setDanaNumber] = useState("");
   const [danaName, setDanaName] = useState("");
   const [qrisUrl, setQrisUrl] = useState("");
+  const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -115,6 +116,32 @@ export default function PaymentModal() {
       setError(t("networkErrorShort"));
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    if (!zoomOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoomOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoomOpen]);
+
+  const downloadQris = async () => {
+    if (!qrisUrl) return;
+    try {
+      const res = await fetch(qrisUrl);
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "qris.png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    } catch {
+      window.open(qrisUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const amount = TOKEN_PRICE.toLocaleString("id-ID");
@@ -275,12 +302,29 @@ export default function PaymentModal() {
                   {t("scanQris")}
                 </p>
                 {qrisUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={qrisUrl}
-                    alt={t("qrisAlt")}
-                    className="mx-auto h-40 w-40 rounded object-contain"
-                  />
+                  <>
+                    <button
+                      type="button"
+                      className="block cursor-zoom-in rounded"
+                      onClick={() => setZoomOpen(true)}
+                      aria-label={t("zoomQris")}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={qrisUrl}
+                        alt={t("qrisAlt")}
+                        className="mx-auto h-40 w-40 rounded object-contain"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost mt-2 w-full text-[12px]"
+                      onClick={downloadQris}
+                    >
+                      <Download size={14} />
+                      {t("downloadQris")}
+                    </button>
+                  </>
                 ) : (
                   <p className="text-[12px] text-text-muted">
                     {t("qrisNotConfigured")}
@@ -359,6 +403,48 @@ export default function PaymentModal() {
           </div>
         )}
       </div>
+
+      {zoomOpen && qrisUrl && (
+        <div
+          className="modal-overlay"
+          style={{ zIndex: 120 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setZoomOpen(false);
+          }}
+          role="dialog"
+          aria-label={t("zoomQris")}
+        >
+          <div
+            className="relative flex flex-col items-center gap-3 rounded-xl bg-card p-4"
+            style={{ maxWidth: "90vw", maxHeight: "85vh" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="toolbar-button absolute right-2 top-2 !p-1"
+              onClick={() => setZoomOpen(false)}
+              aria-label={t("closeAria")}
+            >
+              <X size={18} />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={qrisUrl}
+              alt={t("qrisAlt")}
+              className="mt-4 rounded object-contain"
+              style={{ maxWidth: "85vw", maxHeight: "70vh" }}
+            />
+            <button
+              type="button"
+              className="btn btn-primary w-full"
+              onClick={downloadQris}
+            >
+              <Download size={15} />
+              {t("downloadQris")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
