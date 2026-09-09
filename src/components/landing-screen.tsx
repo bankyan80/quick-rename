@@ -119,13 +119,15 @@ export default function LandingScreen() {
           </div>
         )}
         <div className="mb-5 flex h-16 w-16 items-center justify-center">
-          <svg width="64" height="64" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="3" width="24" height="36" rx="5" fill="#e8eaed" stroke="#c8ccd4" />
-            <path d="M12 22h16" stroke="#9aa3af" strokeWidth="2" strokeLinecap="round" />
-            <path d="M14 14h12" stroke="#9aa3af" strokeWidth="2" strokeLinecap="round" />
-            <path d="M34 16l6 6-6 6" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <path d="M38 22H12" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logoquickrename.png"
+            alt="Quick Rename"
+            width={64}
+            height={64}
+            className="object-contain"
+            draggable={false}
+          />
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight">
