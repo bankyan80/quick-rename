@@ -39,6 +39,24 @@
     "folderOpenFailed": "Could not open the folder. Check your access permissions.",
     "dropFailed": "Could not read the dropped files."
   },
+  "tutorial": {
+    "label": "How to Use",
+    "intro": "Four quick steps to rename any file.",
+    "stepTag": "Step",
+    "step1Title": "Start from the main screen",
+    "step1Body": "The main screen is ready to go. Pick files or a folder, or drop files onto the upload area — no account needed.",
+    "step2Title": "Select the files to rename",
+    "step2Body": "Files appear in a list with size and date. Check the files you want or use Select All.",
+    "step3Title": "Set a naming rule",
+    "step3Body": "Pick a rule such as Prefix, Numbering, or Find & Replace. Check the result in the preview; name conflicts are marked automatically.",
+    "step4Title": "Apply the changes",
+    "step4Body": "Click Rename. Changes are applied directly to the folder, or downloaded as a ZIP when needed."
+  },
+  "otherTools": {
+    "label": "Other Quick Apps",
+    "intro": "More free PDF tools from Quick, running right in your browser.",
+    "open": "Open"
+  },
   "sidebar": {
     "quickAccess": "Quick Access",
     "collapse": "Collapse sidebar",

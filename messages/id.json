@@ -39,6 +39,24 @@
     "folderOpenFailed": "Tidak dapat membuka folder. Periksa izin akses Anda.",
     "dropFailed": "Tidak dapat membaca file yang diturunkan."
   },
+  "tutorial": {
+    "label": "Cara Penggunaan",
+    "intro": "Empat langkah cepat mengubah nama file apa pun.",
+    "stepTag": "Langkah",
+    "step1Title": "Mulai dari halaman utama",
+    "step1Body": "Halaman utama langsung siap dipakai. Pilih file atau folder, atau seret file ke area unggah — tanpa perlu akun.",
+    "step2Title": "Pilih file yang akan diubah",
+    "step2Body": "File muncul dalam daftar lengkap dengan ukuran dan tanggal. Centang file yang diinginkan atau gunakan Pilih Semua.",
+    "step3Title": "Atur aturan penamaan",
+    "step3Body": "Pilih aturan seperti Awalan, Penomoran, atau Cari & Ganti. Cek hasilnya di pratinjau; bentrok nama otomatis ditandai.",
+    "step4Title": "Terapkan perubahan",
+    "step4Body": "Klik Rename. Perubahan diterapkan langsung ke folder, atau diunduh sebagai ZIP bila diperlukan."
+  },
+  "otherTools": {
+    "label": "Aplikasi Quick Lainnya",
+    "intro": "Tools PDF gratis lainnya yang berjalan langsung di peramban Anda.",
+    "open": "Buka"
+  },
   "sidebar": {
     "quickAccess": "Akses Cepat",
     "collapse": "Ciutkan sidebar",
